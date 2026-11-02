@@ -93,12 +93,22 @@ export function createInvite({ name, email, note }) {
 export function inviteLink(inv, base) {
   const u = new URL('index.html', base || location.href); u.searchParams.set('e', inv.email); u.searchParams.set('c', inv.code); return u.href;
 }
+function mailInvite(inv, base, sender) {
+  const link = inviteLink(inv, base);
+  sendMail({ to: inv.email, kind: 'invite', subject: 'You are invited: Tolpods investor presentation', text: `Hello ${inv.name},\n\nYou have been invited to review the Tolpods investor presentation (by invitation only).\n\nYour invitation code: ${inv.code}\n\nClick to start - your email and code are filled in for you:\n${link}\n\nOr go to the investor sign-in page and enter this email address and the 5-digit invitation code above. For your security we will then email a one-time verification code each time you sign in.\n\nHaving trouble? Use "Trouble with your code?" on the sign-in page, or reply to this email.\n\n- ${sender}, Tolpods` });
+  inv.sentAt = Date.now(); inv.sendCount++; S.save();
+}
 export function sendInvite(code, base) {
   const me = needAdmin(), inv = db().invites.find(i => i.code === code); if (!inv) return fail('Invitation not found.');
   if (inv.status === 'revoked') return fail('That invitation was revoked.');
-  const link = inviteLink(inv, base);
-  sendMail({ to: inv.email, kind: 'invite', subject: 'You are invited: Tolpods investor presentation', text: `Hello ${inv.name},\n\nYou have been invited to review the Tolpods investor presentation (by invitation only).\n\nYour invitation code: ${inv.code}\n\nClick to start - your email and code are filled in for you:\n${link}\n\nFor your security we will also email a one-time verification code each time you sign in.\n\nHaving trouble? Use "Trouble with your code?" on the sign-in page, or reply to this email.\n\n- ${me.name}, Tolpods` });
-  inv.sentAt = Date.now(); inv.sendCount++; S.save(); audit(me.email, 'invite.send', inv.email); return ok();
+  mailInvite(inv, base, me.name); audit(me.email, 'invite.send', inv.email); return ok();
+}
+/* Prototype only: one click creates a sample investor invitation so the investor flow can be tried without the admin screens. */
+export function createDemoInvite(base) {
+  if (CONFIG.mode !== 'mock') return fail('Demo invites are only available in prototype mode.');
+  const d = db(); let n = 1, email; do { email = `demo${n === 1 ? '' : n}@example.com`; n++; } while (d.invites.some(i => i.email === email && i.status !== 'revoked'));
+  const inv = { code: newCode(), name: 'Demo Investor', email, note: 'Sample invite from Dev mailbox', status: 'invited', createdAt: Date.now(), createdBy: 'demo', sentAt: null, sendCount: 0 };
+  d.invites.unshift(inv); S.save(); mailInvite(inv, base, 'KJ'); audit('demo', 'invite.demo', email + ' ' + inv.code); return ok({ invite: inv });
 }
 export function revokeInvite(code) { const me = needAdmin(), i = db().invites.find(x => x.code === code); if (!i) return fail('Not found.'); i.status = 'revoked'; S.save(); audit(me.email, 'invite.revoke', i.email); return ok(); }
 

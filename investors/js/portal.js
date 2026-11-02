@@ -6,6 +6,7 @@ import { signaturePad } from './sign.js';
 import { renderDeck, NAV } from './deck.js';
 import { DECK } from './deckdata.js';
 import { brand, mountMailbox, supportModal } from './ui.js';
+import * as S from './store.js';
 import { h, $, $$, esc, toast, download, money, fmtDate, emailOk } from './util.js';
 
 const app = $('#app');
@@ -49,10 +50,20 @@ function loginView(stage = 1, ctx = {}) {
     code.addEventListener('input', () => code.value = code.value.toUpperCase().replace(DIG ? /[^0-9]/g : /[^A-Z0-9]/g, ''));
     const err = h('div', { class: 'err-t', role: 'alert' }), btn = h('button', { class: 'btn lg', style: 'width:100%' }, 'Continue');
     const form = h('form', { onsubmit: async e => { e.preventDefault(); err.textContent = ''; btn.disabled = true; const r = await API.investorRequestCode(email.value, code.value); btn.disabled = false; if (!r.ok) { err.textContent = r.error; return; } loginView(2, { email: email.value.trim().toLowerCase(), code: code.value }); } },
+      !(invite.e && invite.c) && CONFIG.mode === 'mock' ? h('div', { class: 'banner warn' }, 'Prototype: no invitation yet? Open the ✉ Dev mailbox (bottom right) and tap "＋ Sample investor invite". Your 5-digit code will appear in the email.') : null,
       invite.e && invite.c ? h('div', { class: 'banner good' }, '✓ Your email and invitation code were filled in from your invitation. Tap Continue.') : null,
       h('div', { class: 'field' }, h('label', {}, 'Email address'), email), h('div', { class: 'field' }, h('label', {}, 'Invitation code'), code, h('span', { class: 'hint' }, DIG ? 'The 5-digit number from your invitation email. This is not the 6-digit code we email after you continue.' : 'The 5-character code from your invitation email.')), err, btn,
       h('p', { style: 'margin-top:18px;font-size:14px' }, h('button', { type: 'button', class: 'link', onclick: () => supportModal({ kind: 'signin', email: email.value }) }, 'Trouble with your code?')), h('p', { style: 'font-size:13.5px;color:var(--faint)' }, 'Tolpods team member? ', h('a', { href: 'admin.html' }, 'Admin sign in'), ' · ', h('a', { href: '../index.html' }, '← Back to tolpods.com')));
-    right = h('div', { class: 'login-box' }, h('h2', {}, 'Sign in'), h('p', {}, 'Enter your email and invitation code. We will then email you a one-time verification code.'), form);
+
+    // Prototype helper (mock mode only): shows the invitations created in THIS browser so testers can find their 5-digit code.
+    let devBox = null;
+    if (CONFIG.mode === 'mock') {
+      const inv = S.load().invites.filter(i => i.status !== 'revoked');
+      devBox = h('div', { class: 'banner warn', style: 'margin-top:18px;flex-direction:column;gap:8px' }, h('b', {}, 'Prototype helper (trial only)'),
+        inv.length ? [h('span', {}, 'Invitations created in this browser. Tap one to fill in the email and code:'), ...inv.slice(0, 5).map(i => h('button', { type: 'button', class: 'btn ghost sm', style: 'justify-content:flex-start', onclick: () => { email.value = i.email; code.value = i.code; } }, `${i.name} · ${i.email} · code ${i.code}`))]
+          : h('span', {}, 'No investor invitations exist yet in this browser. Open ', h('a', { href: 'admin.html' }, 'Admin sign in'), ' > Invite investors, create one, and the 5-digit code appears there.'));
+    }
+    right = h('div', { class: 'login-box' }, h('h2', {}, 'Sign in'), h('p', {}, 'Enter your email and invitation code. We will then email you a one-time verification code.'), form, devBox);
   } else {
     const boxes = Array.from({ length: CONFIG.otp.length }, (_, i) => h('input', { inputmode: 'numeric', maxlength: 1, autocomplete: i ? 'off' : 'one-time-code', 'aria-label': 'Digit ' + (i + 1) }));
     const err = h('div', { class: 'err-t', role: 'alert', style: 'text-align:center' }), btn = h('button', { class: 'btn lg', style: 'width:100%' }, 'Verify and sign in');

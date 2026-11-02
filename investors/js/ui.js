@@ -21,6 +21,7 @@ export function mountMailbox() {
         return h('div', { class: 'mail' },
           h('div', { class: 'mh' }, h('span', {}, 'To: ' + m.to), h('span', {}, fmtDate(m.at))),
           h('b', { class: 's' }, m.subject),
+          m.kind === 'invite' ? h('div', { class: 'fine', style: 'margin-top:6px' }, 'Invitation code (5 digits) - sign in with ', h('b', {}, m.to), ' and this code:') : null,
           ...codes.filter(c => m.kind === 'otp' || m.kind === 'invite').map(c => h('span', { class: 'codechip', title: 'Click to copy', onclick: () => { navigator.clipboard?.writeText(c); toast('Copied ' + c); } }, c)),
           hasLink && m.kind === 'invite' ? h('div', {}, h('a', { href: hasLink[0].replace(/[).,]+$/, ''), class: 'btn sm', style: 'margin-top:8px', target: '_blank' }, 'Open invitation link')) : null,
           h('pre', {}, m.text),
@@ -29,7 +30,7 @@ export function mountMailbox() {
     };
     draw(); const iv = setInterval(draw, 1500);
     const drawer = h('div', { class: 'dev-drawer', role: 'dialog', 'aria-label': 'Dev mailbox' },
-      h('div', { class: 'dev-h' }, h('h3', {}, 'Dev mailbox'), h('button', { class: 'btn ghost sm', onclick: () => { API.clearMailbox(); draw(); count(); } }, 'Clear'), h('button', { class: 'x', 'aria-label': 'Close', onclick: () => { clearInterval(iv); drawer.remove(); } }, '×')),
+      h('div', { class: 'dev-h' }, h('h3', {}, 'Dev mailbox'), h('button', { class: 'btn sm', title: 'Creates a demo investor and the invitation email with a 5-digit code', onclick: () => { const r = API.createDemoInvite(new URL('index.html', location.href).href); if (!r.ok) return toast(r.error, 'err'); draw(); count(); toast('Sample invitation created: ' + r.invite.code); } }, '＋ Sample investor invite'), h('button', { class: 'btn ghost sm', onclick: () => { API.clearMailbox(); draw(); count(); } }, 'Clear'), h('button', { class: 'x', 'aria-label': 'Close', onclick: () => { clearInterval(iv); drawer.remove(); } }, '×')),
       h('div', { class: 'dev-sub' }, 'Prototype mode: emails are not really sent. In production this becomes your email service.'), list);
     document.body.append(drawer);
   };

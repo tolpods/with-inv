@@ -37,20 +37,23 @@ function login(stage = 1, email = '') {
 
 /* ---- invites ---- */
 const statusChip = i => ({ invited: ['Invited', 'gray'], active: ['Signed in', 'good'], revoked: ['Revoked', 'bad'] }[i.status] || [i.status, 'gray']);
+let lastInvite = null;
 function invitesView() {
   const name = h('input', { class: 'inp', placeholder: 'Investor name', autocomplete: 'off' }), email = h('input', { class: 'inp', type: 'email', placeholder: 'investor@example.com', autocomplete: 'off' }), note = h('input', { class: 'inp', placeholder: 'Internal note (optional)' });
   const send = h('input', { type: 'checkbox', checked: true }), err = h('div', { class: 'err-t' });
   const form = h('div', { class: 'card' }, h('h3', {}, 'Invite an investor'), h('p', { style: 'font-size:14px' }, 'We generate a 5-character code and email an invitation. The link fills in their email and code.'),
     h('div', { class: 'field' }, h('label', {}, 'Name'), name), h('div', { class: 'field' }, h('label', {}, 'Email'), email), h('div', { class: 'field' }, h('label', {}, 'Note'), note),
     h('label', { class: 'checkrow', style: 'margin-top:0' }, send, h('span', {}, 'Send the invitation email now')), err,
-    h('button', { class: 'btn', style: 'width:100%', onclick: () => { err.textContent = ''; const r = API.createInvite({ name: name.value, email: email.value, note: note.value }); if (!r.ok) { err.textContent = r.error; return; } if (send.checked) API.sendInvite(r.invite.code, new URL('index.html', location.href).href); toast(send.checked ? 'Invitation sent to ' + r.invite.email : 'Invitation created: ' + r.invite.code); name.value = email.value = note.value = ''; render(); } }, 'Create & send invite'));
+    h('button', { class: 'btn', style: 'width:100%', onclick: () => { err.textContent = ''; const r = API.createInvite({ name: name.value, email: email.value, note: note.value }); if (!r.ok) { err.textContent = r.error; return; } if (send.checked) API.sendInvite(r.invite.code, new URL('index.html', location.href).href); toast(send.checked ? 'Invitation sent to ' + r.invite.email : 'Invitation created: ' + r.invite.code); name.value = email.value = note.value = ''; lastInvite = r.invite; render(); } }, 'Create & send invite'));
   const rows = API.listInvites();
   const table = h('div', { class: 'tw' }, rows.length ? h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Investor', 'Code', 'Status', 'Sent', 'Actions'].map(x => h('th', {}, x)))), h('tbody', {}, rows.map(i => {
     const [lb, cl] = statusChip(i); const link = API.inviteLink(i, new URL('index.html', location.href).href);
     return h('tr', {}, h('td', {}, h('b', {}, i.name), h('br'), h('span', { class: 'fine' }, i.email + (i.note ? ' · ' + i.note : ''))), h('td', {}, h('span', { class: 'code' }, i.code)), h('td', {}, h('span', { class: 'chip ' + cl }, lb)), h('td', {}, i.sentAt ? fmtDate(i.sentAt) + (i.sendCount > 1 ? ` (×${i.sendCount})` : '') : h('span', { class: 'fine' }, 'Not sent')),
       h('td', {}, h('div', { class: 'acts' }, i.status !== 'revoked' ? [h('button', { class: 'btn sm', onclick: () => { API.sendInvite(i.code, new URL('index.html', location.href).href); toast('Invitation ' + (i.sentAt ? 're' : '') + 'sent'); render(); } }, i.sentAt ? 'Resend' : 'Send invite'), h('button', { class: 'btn ghost sm', onclick: () => { navigator.clipboard?.writeText(link); toast('Invite link copied'); } }, 'Copy link'), h('button', { class: 'btn danger sm', onclick: () => modal('Revoke invitation?', h('p', {}, 'This stops ', h('b', {}, i.email), ' from signing in. Their saved data is kept.'), { actions: [{ label: 'Cancel', kind: 'ghost', run: c => c() }, { label: 'Revoke', kind: 'danger', run: c => { API.revokeInvite(i.code); c(); render(); } }] }) }, 'Revoke')] : h('span', { class: 'fine' }, '-'))));
   }))) : h('div', { class: 'empty' }, 'No invitations yet. Create the first one.'));
-  return h('div', { class: 'adm' }, h('div', { class: 'eyebrow' }, 'Screen 2 of 2'), h('h1', {}, 'Invite ', h('span', { class: 'serif' }, 'investors')), h('div', { class: 'adm-grid' }, form, table));
+  const li = lastInvite; lastInvite = null;
+  const flash = li ? h('div', { class: 'banner good', style: 'align-items:center;flex-wrap:wrap;gap:14px;margin:14px 0' }, h('span', {}, '✓ Invitation created for ', h('b', {}, li.name), '. Their 5-digit investor code is'), h('span', { class: 'code', style: 'font-size:26px;padding:6px 16px' }, li.code), h('button', { class: 'btn sm', onclick: () => { navigator.clipboard?.writeText(API.inviteLink(li, new URL('index.html', location.href).href)); toast('Invite link copied'); } }, 'Copy invite link'), h('a', { class: 'btn ghost sm', href: 'index.html', target: '_blank' }, 'Open investor sign-in ↗')) : null;
+  return h('div', { class: 'adm' }, h('div', { class: 'eyebrow' }, 'Screen 2 of 2'), h('h1', {}, 'Invite ', h('span', { class: 'serif' }, 'investors')), flash, h('div', { class: 'adm-grid' }, form, table));
 }
 
 /* ---- admin users ---- */
