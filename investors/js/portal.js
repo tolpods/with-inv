@@ -9,6 +9,7 @@ import { brand, mountMailbox, supportModal } from './ui.js';
 import { h, $, $$, esc, toast, download, money, fmtDate, emailOk } from './util.js';
 
 const app = $('#app');
+const DIG = CONFIG.inviteCode.charset === 'digits';
 let me = null, deckCtl = null;
 const qs = new URLSearchParams(location.search);
 const invite = { e: qs.get('e') || '', c: (qs.get('c') || '').toUpperCase() };
@@ -44,13 +45,13 @@ function loginView(stage = 1, ctx = {}) {
   let right;
   if (stage === 1) {
     const email = h('input', { class: 'inp', type: 'email', value: ctx.email ?? invite.e, placeholder: 'you@example.com', autocomplete: 'email', inputmode: 'email', 'aria-label': 'Email address' });
-    const code = h('input', { class: 'inp code-inp', value: ctx.code ?? invite.c, maxlength: 5, placeholder: 'XXXXX', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Invitation code' });
-    code.addEventListener('input', () => code.value = code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+    const code = h('input', { class: 'inp code-inp', value: ctx.code ?? invite.c, maxlength: 5, placeholder: DIG ? '00000' : 'XXXXX', autocomplete: 'off', inputmode: DIG ? 'numeric' : 'text', pattern: DIG ? '[0-9]*' : null, autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Invitation code' });
+    code.addEventListener('input', () => code.value = code.value.toUpperCase().replace(DIG ? /[^0-9]/g : /[^A-Z0-9]/g, ''));
     const err = h('div', { class: 'err-t', role: 'alert' }), btn = h('button', { class: 'btn lg', style: 'width:100%' }, 'Continue');
     const form = h('form', { onsubmit: async e => { e.preventDefault(); err.textContent = ''; btn.disabled = true; const r = await API.investorRequestCode(email.value, code.value); btn.disabled = false; if (!r.ok) { err.textContent = r.error; return; } loginView(2, { email: email.value.trim().toLowerCase(), code: code.value }); } },
       invite.e && invite.c ? h('div', { class: 'banner good' }, '✓ Your email and invitation code were filled in from your invitation. Tap Continue.') : null,
-      h('div', { class: 'field' }, h('label', {}, 'Email address'), email), h('div', { class: 'field' }, h('label', {}, 'Invitation code'), code, h('span', { class: 'hint' }, 'The 5-character code from your invitation email.')), err, btn,
-      h('p', { style: 'margin-top:18px;font-size:14px' }, h('button', { type: 'button', class: 'link', onclick: () => supportModal({ kind: 'signin', email: email.value }) }, 'Trouble with your code?')));
+      h('div', { class: 'field' }, h('label', {}, 'Email address'), email), h('div', { class: 'field' }, h('label', {}, 'Invitation code'), code, h('span', { class: 'hint' }, DIG ? 'The 5-digit number from your invitation email. This is not the 6-digit code we email after you continue.' : 'The 5-character code from your invitation email.')), err, btn,
+      h('p', { style: 'margin-top:18px;font-size:14px' }, h('button', { type: 'button', class: 'link', onclick: () => supportModal({ kind: 'signin', email: email.value }) }, 'Trouble with your code?')), h('p', { style: 'font-size:13.5px;color:var(--faint)' }, 'Tolpods team member? ', h('a', { href: 'admin.html' }, 'Admin sign in'), ' · ', h('a', { href: '../index.html' }, '← Back to tolpods.com')));
     right = h('div', { class: 'login-box' }, h('h2', {}, 'Sign in'), h('p', {}, 'Enter your email and invitation code. We will then email you a one-time verification code.'), form);
   } else {
     const boxes = Array.from({ length: CONFIG.otp.length }, (_, i) => h('input', { inputmode: 'numeric', maxlength: 1, autocomplete: i ? 'off' : 'one-time-code', 'aria-label': 'Digit ' + (i + 1) }));

@@ -7,7 +7,7 @@ import { sha256, norm, emailOk, money } from './util.js';
 import * as D from './docs.js';
 import { DECK } from './deckdata.js';
 
-const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // no 0/O/1/I
+const CODE_CHARS = CONFIG.inviteCode.charset === 'digits' ? '0123456789' : 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // alnum: no 0/O/1/I
 const rnd = n => crypto.getRandomValues(new Uint32Array(n));
 const uid = () => Array.from(rnd(3), x => x.toString(36)).join('');
 const db = () => S.load();
@@ -81,7 +81,7 @@ export function removeAdmin(email) {
 }
 
 /* ---------- admin: invites ---------- */
-function newCode() { const d = db(); for (; ;) { const c = Array.from(rnd(5), x => CODE_CHARS[x % CODE_CHARS.length]).join(''); if (!d.invites.some(i => i.code === c)) return c; } }
+function newCode() { const d = db(); for (; ;) { const c = Array.from(rnd(CONFIG.inviteCode.length), x => CODE_CHARS[x % CODE_CHARS.length]).join(''); if (!d.invites.some(i => i.code === c)) return c; } }
 export const listInvites = () => { needAdmin(); return db().invites; };
 export function createInvite({ name, email, note }) {
   const me = needAdmin(); email = norm(email);
@@ -105,7 +105,7 @@ export function revokeInvite(code) { const me = needAdmin(), i = db().invites.fi
 /* ---------- investor auth ---------- */
 export async function investorRequestCode(email, code) {
   email = norm(email); code = String(code || '').trim().toUpperCase();
-  if (!emailOk(email) || !/^[A-Z0-9]{5}$/.test(code)) return fail('Enter your email and the 5-character invitation code.');
+  if (!emailOk(email) || !/^[A-Z0-9]{5}$/.test(code)) return fail(CONFIG.inviteCode.charset === 'digits' ? 'Enter your email and the 5-digit invitation code.' : 'Enter your email and the 5-character invitation code.');
   const inv = db().invites.find(i => i.code === code && i.email === email && i.status !== 'revoked');
   if (!inv) return fail("That email and invitation code don't match. Check your invitation, or tap \"Trouble with your code?\".");
   const r = await issueOtp('investor', email, inv.name); if (r.wait) return fail('Please wait ' + r.wait + 's before requesting another code.');

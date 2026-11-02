@@ -293,3 +293,5 @@ body.explorer { font-family: var(--sans); }
 input:focus, textarea:focus { outline-color: var(--green); }
 #stick { background: rgba(35,43,31,.08); }
 
+
+@media (max-width: 560px) { .nav .nav-inv { display: none; } }

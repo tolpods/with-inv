@@ -20,7 +20,7 @@ function login(stage = 1, email = '') {
   if (stage === 1) {
     const inp = h('input', { class: 'inp', type: 'email', placeholder: 'you@tolpods.com', value: email, autocomplete: 'email', 'aria-label': 'Admin email' }); const btn = h('button', { class: 'btn lg', style: 'width:100%' }, 'Email me a code');
     box = h('form', { onsubmit: async e => { e.preventDefault(); err.textContent = ''; btn.disabled = true; const r = await API.adminRequestCode(inp.value); btn.disabled = false; if (!r.ok) { err.textContent = r.error; return; } login(2, inp.value.trim().toLowerCase()); } },
-      h('div', { class: 'field' }, h('label', {}, 'Admin email'), inp), err, btn);
+      h('div', { class: 'field' }, h('label', {}, 'Admin email'), inp), err, btn, h('p', { style: 'margin-top:16px;font-size:13.5px;color:var(--faint)' }, 'Investor? ', h('a', { href: 'index.html' }, 'Investor sign in'), ' · ', h('a', { href: '../index.html' }, '← Back to tolpods.com')));
     box = h('div', { class: 'login-box' }, h('h2', {}, 'Admin sign in'), h('p', {}, 'Enter your admin email. We will send you a one-time code.'), box);
   } else {
     const boxes = Array.from({ length: CONFIG.otp.length }, (_, i) => h('input', { inputmode: 'numeric', maxlength: 1, autocomplete: i ? 'off' : 'one-time-code', 'aria-label': 'Digit ' + (i + 1) }));

@@ -29,6 +29,9 @@ export const CONFIG = {
   // (Nominatim), otherwise a basic format check. Restrict the key to your site's domain in Google Cloud.
   googleAddressKey: '',
 
+  // Investor invitation code format: 'digits' (5-digit number, easiest on a phone keypad) or 'alnum' (letters + numbers).
+  inviteCode: { length: 5, charset: 'digits' },
+
   otp: { length: 6, ttlMin: 10, maxTries: 5, resendSec: 30 },
   sessionMin: 90
 };
