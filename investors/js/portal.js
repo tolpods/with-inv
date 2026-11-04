@@ -3,7 +3,7 @@ import * as API from './api.js';
 import * as D from './docs.js';
 import { verifyAddress } from './address.js';
 import { signaturePad } from './sign.js';
-import { renderDeck, NAV } from './deck.js';
+import { renderPresentation } from './present.js';
 import { DECK } from './deckdata.js';
 import { brand, mountMailbox, supportModal } from './ui.js';
 import * as S from './store.js';
@@ -169,20 +169,16 @@ function ndaView() {
 
 /* ---------------- step 3: presentation ---------------- */
 function deckView(anchor) {
-  const nav = h('div', { class: 'deck-nav', id: 'deck-nav' }, h('div', { class: 'deck-nav-in' }, NAV.map(([id, l]) => h('a', { href: '#deck/' + id, 'data-s': id, onclick: e => { e.preventDefault(); history.replaceState(null, '', '#deck/' + id); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); } }, l))), h('div', { class: 'deck-prog' }, h('i')));
   const root = h('div', { id: 'deck-root' });
-  shell(h('div', {}, nav, root), { step: 'deck' });
-  nav.style.top = $('.top').offsetHeight + 'px';
-  const settings = API.publicSettings();
+  app.replaceChildren(root);
   deckCtl?.destroy();
-  deckCtl = renderDeck(root, {
-    me, settings, productHref: '../explorer.html?return=' + encodeURIComponent('investors/index.html#deck/product'),
+  deckCtl = renderPresentation(root, {
+    me, settings: API.publicSettings(), start: anchor,
+    productHref: '../explorer.html?return=' + encodeURIComponent('investors/index.html#deck/product'),
     onInvest: () => go('invest'), onHelp: () => supportModal({ kind: 'help', email: me.email, name: me.profile.signerName || me.name }),
+    onExit: () => saveExit(),
     onTrack: k => { if (k.startsWith('view:')) API.markViewed(k.slice(5)); else API.click(k); }
   });
-  const bar = $('.deck-prog i'), upd = () => { const t = document.documentElement.scrollHeight - innerHeight; bar.style.width = (t > 0 ? scrollY / t * 100 : 0) + '%'; };
-  addEventListener('scroll', upd, { passive: true }); upd();
-  if (anchor) setTimeout(() => document.getElementById(anchor)?.scrollIntoView(), 60); else window.scrollTo({ top: 0 });
 }
 
 /* ---------------- step 4: invest (SAFE) ---------------- */

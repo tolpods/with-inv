@@ -216,9 +216,13 @@ export function dashboard() {
   return { rows, committed, tickets: d.tickets, audit: d.audit, outbox: d.outbox.length };
 }
 export function setSafeStatus(email, status) { const me = needAdmin(), i = db().investors[email]; if (i?.safe) { i.safe.status = status; ev(i, 'safe-status', status); S.save(); audit(me.email, 'safe.status', email + ' ' + status); } return ok(); }
-export const getSettings = () => db().settings;
+/* Scheduling is generic: "Investment questions" and "Product questions". Older saved settings (CEO / CTO) are mapped onto these. */
+const CAL_DEFAULT = CONFIG.calendar;
+const normCal = cal => CAL_DEFAULT.map((d, i) => { const c = (cal || []).find(x => x.id === d.id) || (cal || [])[i] || {}; return { id: d.id, label: d.label, blurb: d.blurb, calendly: /YOUR-/i.test(c.calendly || '') ? '' : (c.calendly || ''), google: c.google || '' }; });
+const withCal = s => ({ ...s, calendar: normCal(s.calendar) });
+export const getSettings = () => withCal(db().settings);
 export function saveSettings(s) { const me = needAdmin(); db().settings = { ...db().settings, ...s }; S.save(); audit(me.email, 'settings.save'); return ok(); }
-export const publicSettings = () => db().settings;
+export const publicSettings = () => withCal(db().settings);
 
 /* ---------- dev mailbox (mock only) ---------- */
 export const mailbox = () => db().outbox;

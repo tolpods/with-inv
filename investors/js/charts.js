@@ -44,3 +44,21 @@ export function lineChart({ labels, series, W = 760, H = 320 }) {
   });
   return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Line chart">${out}</svg>`;
 }
+
+/* Donut / pie. data: [{name,value,color}]. Arcs draw in when an ancestor has .on (see present.css). */
+export function donut({ data, size = 280, thick = 38, center = '', sub = '', pie = false, gap = 0.6, fmt = v => compact(v) }) {
+  const total = data.reduce((a, d) => a + d.value, 0) || 1, r = 50 - (pie ? 0 : thick / 2 * (100 / size)) , R = pie ? 25 : r;
+  let acc = 0, arcs = '';
+  data.forEach((d, i) => {
+    const p = d.value / total * 100, len = Math.max(p - (data.length > 1 ? gap : 0), 0.01);
+    const w = pie ? 50 : thick * (100 / size);
+    arcs += `<circle class="arc" cx="50" cy="50" r="${R}" pathLength="100" fill="none" stroke="${d.color}" stroke-width="${w}" stroke-dasharray="0 100" style="--d:${len.toFixed(2)} 100;--o:${(-acc).toFixed(2)};--i:${i}" stroke-dashoffset="${(-acc).toFixed(2)}"><title>${esc(d.name)}: ${fmt(d.value)} (${p.toFixed(1)}%)</title></circle>`;
+    acc += p;
+  });
+  const mid = pie ? '' : `<div class="dn-c"><b>${center}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+  return `<div class="dn" style="--s:${size}px"><svg viewBox="0 0 100 100" role="img" aria-label="Donut chart"><g transform="rotate(-90 50 50)">${arcs}</g></svg>${mid}</div>`;
+}
+export function donutLegend(data, total, fmt = compact, pct = true) {
+  const t = total ?? data.reduce((a, d) => a + d.value, 0);
+  return `<ul class="dn-lg">${data.map(d => `<li><i style="background:${d.color}"></i><span>${esc(d.name)}</span><b>${fmt(d.value)}</b><em>${pct ? (d.value / t * 100).toFixed(d.value / t < .1 ? 1 : 0) + '%' : ''}</em></li>`).join('')}</ul>`;
+}

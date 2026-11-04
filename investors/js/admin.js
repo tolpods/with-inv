@@ -69,9 +69,9 @@ function adminsView() {
 /* ---- settings ---- */
 function settingsView() {
   const s = API.getSettings(); const cal = JSON.parse(JSON.stringify(s.calendar)); const sup = h('input', { class: 'inp', value: s.supportEmail });
-  const blocks = cal.map(p => h('div', { class: 'card', style: 'margin-bottom:16px' }, h('h3', {}, p.who + ' appointments'),
-    h('div', { class: 'row2' }, h('div', { class: 'field' }, h('label', {}, 'Name'), h('input', { class: 'inp', value: p.name, oninput: e => p.name = e.target.value })), h('div', { class: 'field' }, h('label', {}, 'Title'), h('input', { class: 'inp', value: p.title, oninput: e => p.title = e.target.value }))),
-    h('div', { class: 'field' }, h('label', {}, 'Calendly link'), h('input', { class: 'inp', value: p.calendly, placeholder: 'https://calendly.com/your-name/30min', oninput: e => p.calendly = e.target.value })),
+  const blocks = cal.map(p => h('div', { class: 'card', style: 'margin-bottom:16px' }, h('h3', {}, p.label),
+    h('p', { class: 'fine', style: 'margin:0 0 12px' }, 'Investors see this as a card on the "Talk to us" slide. Whoever owns this calendar answers these questions.'),
+    h('div', { class: 'field' }, h('label', {}, 'Calendly link'), h('input', { class: 'inp', value: p.calendly, placeholder: 'https://calendly.com/your-team/30min', oninput: e => p.calendly = e.target.value })),
     h('div', { class: 'field' }, h('label', {}, 'Google Calendar appointment page (used if no Calendly link)'), h('input', { class: 'inp', value: p.google, placeholder: 'https://calendar.app.google/...', oninput: e => p.google = e.target.value }))));
   return h('div', { class: 'adm', style: 'max-width:760px' }, h('h1', {}, 'Settings'), blocks, h('div', { class: 'card' }, h('h3', {}, 'Support'), h('div', { class: 'field' }, h('label', {}, 'Support email shown to investors'), sup)),
     h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => { API.saveSettings({ calendar: cal, supportEmail: sup.value }); toast('Settings saved'); } }, 'Save settings'), CONFIG.mode === 'mock' ? h('button', { class: 'btn danger', onclick: () => modal('Reset all demo data?', h('p', {}, 'Deletes every invitation, investor, NDA, SAFE and email stored in this browser and restores the seeded admins.'), { actions: [{ label: 'Cancel', kind: 'ghost', run: c => c() }, { label: 'Reset everything', kind: 'danger', run: c => { S.resetAll(); c(); render(); } }] }) }, 'Reset demo data') : null));

@@ -20,9 +20,10 @@ export const CONFIG = {
   supportEmail: 'investors@tolpods.com',
 
   // Scheduling pages (Calendly and/or Google Calendar appointment page). Editable in Admin > Settings.
+  // Two generic booking topics (no named people): investors pick the kind of question, you decide who answers.
   calendar: [
-    { who: 'CEO', name: 'CEO', title: 'Chief Executive Officer', calendly: 'https://calendly.com/YOUR-CEO/30min', google: '' },
-    { who: 'CTO', name: 'CTO', title: 'Chief Technology Officer', calendly: 'https://calendly.com/YOUR-CTO/30min', google: '' }
+    { id: 'investment', label: 'Investment questions', blurb: 'The round, the SAFE, ownership, timing and risk. Ask anything about the terms.', calendly: '', google: '' },
+    { id: 'product',    label: 'Product questions',    blurb: 'The tolpod, the technology, airport rollout and operations. Ask anything about how it works.', calendly: '', google: '' }
   ],
 
   // Address verification. With a Google Address Validation API key it uses Google; otherwise OpenStreetMap
