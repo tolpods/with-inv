@@ -26,7 +26,7 @@ function shell(body, { step, tools = true } = {}) {
     return h('button', { class: 'stp' + (k === step ? ' on' : '') + (done ? ' done' : ''), disabled: lock, onclick: () => go(k), 'aria-current': k === step ? 'step' : null }, h('i', {}, done ? '✓' : String(i + 1)), h('span', {}, l));
   }) : [];
   const top = h('header', { class: 'top' }, h('div', { class: 'top-in' }, brand('Investors'), me ? h('nav', { class: 'steps', 'aria-label': 'Progress' }, stepBtns) : h('span', { class: 'sp' }), me ? h('span', { class: 'sp' }) : null,
-    me && tools ? [h('span', { class: 'who' }, h('b', {}, me.email)), h('button', { class: 'btn ghost sm', onclick: () => supportModal({ kind: 'help', email: me.email, name: me.profile.signerName || me.name }) }, 'Help'), h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out')] : null));
+    me && tools ? [h('span', { class: 'who' }, h('b', {}, me.email)), me.nda ? h('button', { class: 'btn ghost sm', title: 'Download your signed NDA (PDF)', onclick: () => download(me.nda.id + '.pdf', me.nda.pdf) }, 'Signed NDA ⬇') : null, h('button', { class: 'btn ghost sm', onclick: () => supportModal({ kind: 'help', email: me.email, name: me.profile.signerName || me.name }) }, 'Help'), h('button', { class: 'btn ghost sm', onclick: signOut }, 'Sign out')] : null));
   app.replaceChildren(top, body);
 }
 const D_ok = () => !Object.keys(D.validateProfile(me.profile || {})).length;
@@ -176,7 +176,7 @@ function deckView(anchor) {
     me, settings: API.publicSettings(), start: anchor,
     productHref: '../explorer.html?return=' + encodeURIComponent('investors/index.html#deck/product'),
     onInvest: () => go('invest'), onHelp: () => supportModal({ kind: 'help', email: me.email, name: me.profile.signerName || me.name }),
-    onExit: () => saveExit(),
+    onExit: () => saveExit(), onDoc: me.nda ? () => download(me.nda.id + '.pdf', me.nda.pdf) : null,
     onTrack: k => { if (k.startsWith('view:')) API.markViewed(k.slice(5)); else API.click(k); }
   });
 }
@@ -191,7 +191,7 @@ function investView() {
   const amountNow = () => st.opt === 'custom' ? Math.round(Number(String(st.custom).replace(/[^\d.]/g, ''))) || 0 : DECK.options[st.stage].items[st.opt]?.[0] || 0;
   const terms = () => D.safeTerms(DECK.options[st.stage], st.opt === 'custom' ? -1 : st.opt, amountNow(), st.version);
   let gate = false; const chk = h('input', { type: 'checkbox' }), btn = h('button', { class: 'btn gold lg' }, 'Sign SAFE & submit'); const hint = h('div', { class: 'scrollhint' }, '↓ Scroll to the end of the SAFE to continue');
-  const drawStages = () => stageTabs.replaceChildren(...Object.keys(DECK.options).map(sn => h('button', { type: 'button', class: 'seg' + (st.stage === sn ? ' on' : ''), onclick: () => { st.stage = sn; st.opt = 0; draftSave(); drawAll(); } }, sn)));
+  const drawStages = () => Object.keys(DECK.options).length < 2 ? stageTabs.replaceChildren() : stageTabs.replaceChildren(...Object.keys(DECK.options).map(sn => h('button', { type: 'button', class: 'seg' + (st.stage === sn ? ' on' : ''), onclick: () => { st.stage = sn; st.opt = 0; draftSave(); drawAll(); } }, sn)));
   const drawOpts = () => { const s = DECK.options[st.stage]; optBox.replaceChildren(...s.items.map((it, i) => h('button', { type: 'button', class: 'tile' + (st.opt === i ? ' on' : ''), onclick: () => { st.opt = i; draftSave(); drawAll(); } }, h('b', {}, money(it[0])), h('small', {}, `for ${it[1]}% · ${money(Math.round(it[0] / it[1] * 100))} cap`))),
     h('div', { class: 'tile' + (st.opt === 'custom' ? ' on' : ''), onclick: () => { st.opt = 'custom'; draftSave(); drawAll(); setTimeout(() => $('#custom-amt')?.focus(), 30); }, role: 'button', tabindex: 0 }, h('b', {}, 'Other amount'), st.opt === 'custom' ? h('input', { id: 'custom-amt', class: 'inp', inputmode: 'numeric', placeholder: '$ amount (min $10,000)', value: st.custom, style: 'margin-top:8px', oninput: e => { st.custom = e.target.value; draftSave(); drawPrev(); } }) : h('small', {}, 'Min $10,000')));
     $('#stage-note').textContent = s.note + ' · seed target ' + money(s.target); };

@@ -1,4 +1,4 @@
-/* Generated from the investor deck (KJF_Investors_by_Invitation_only). */
+/* Generated from the investor deck (20261109 KJF Investors by Invitation - Phase 1). */
 export const DECK = {
  "phases": [
   {
@@ -7,27 +7,27 @@ export const DECK = {
    "pods": 10
   },
   {
-   "name": "Phase I Expansion",
+   "name": "Phase I",
    "clusters": 5,
    "pods": 50
   },
   {
-   "name": "Phase II Expansion",
+   "name": "Phase II",
    "clusters": 20,
    "pods": 200
   },
   {
-   "name": "Phase III Expansion",
+   "name": "Phase III",
    "clusters": 60,
    "pods": 600
   },
   {
-   "name": "Phase IV Expansion",
+   "name": "Phase IV",
    "clusters": 120,
    "pods": 1200
   },
   {
-   "name": "Phase V - Pre-IPO",
+   "name": "IPO phase",
    "clusters": 240,
    "pods": 2400
   }
@@ -111,43 +111,51 @@ export const DECK = {
  "roi": {
   "value": [
    445989.0,
-   2286465.0,
-   9409860.0,
-   30029580.0,
-   63659160.0,
-   132718320.0
+   2858081.25,
+   14114790.0,
+   52551765.0,
+   127318320.0,
+   298616220.0
+  ],
+  "mult": [
+   4,
+   5,
+   6,
+   7,
+   8,
+   9
   ],
   "s1": [
    4459.89,
-   22864.65,
-   94098.6,
-   300295.8,
-   636591.6,
-   1327183.2
+   28580.81,
+   141147.9,
+   525517.65,
+   1273183.2,
+   2986162.2
   ],
   "s5": [
    22299.45,
-   114323.25,
-   470493.0,
-   1501479.0,
-   3182958.0,
-   6635916.0
+   142904.06,
+   705739.5,
+   2627588.25,
+   6365916.0,
+   14930811.0
   ],
   "s20": [
    89197.8,
-   457293.0,
-   1881972.0,
-   6005916.0,
-   12731832.0,
-   26543664.0
+   571616.25,
+   2822958.0,
+   10510353.0,
+   25463664.0,
+   59723244.0
   ],
   "pct": [
    -91.08,
-   -54.27,
-   88.2,
-   500.59,
-   1173.18,
-   2554.37
+   -42.84,
+   182.3,
+   951.04,
+   2446.37,
+   5872.32
   ]
  },
  "capital": {
@@ -349,14 +357,12 @@ export const DECK = {
   ]
  ],
  "mvpExpenseNotes": [
-  "Cluster-Monthly Expenses at Launch of MVP",
-  "(1 Cluster has 10 tolpods)",
   "*Rent is 35% of gross revenues",
   "**3 Full-time employees at $60,000/year salaries",
   "***4 Part-time employees at $25/hr for 20 hours each",
   "****Large Pickup Truck & Golf cart",
   "*****Office space - 2,000 sq. ft. Class B office space",
-  "******Tolpods Maintenance - $200 per tolpods",
+  "******Tolpods Maintenance - $200 for one of the  Tolpods",
   "*******Marketing & Advertising",
   "$50/day - ads with Instagram, TikTok, etc; $3,000/month",
   "$3,000/month for Micro-influencer marketing & content creation",
@@ -364,72 +370,110 @@ export const DECK = {
  ],
  "rates": [
   [
-   "Cluster - Tolpods Rental Revenues",
+   "Cluster - Tolpods Revenues",
+   "",
    "",
    ""
   ],
   [
    "(1 Cluster has 10 tolpods)",
    "",
+   "",
+   ""
+  ],
+  [
+   "",
+   "",
+   "",
    ""
   ],
   [
    "Usage Rates for Tolpods",
    "",
-   ""
+   "Regular",
+   "Premier"
   ],
   [
-   "LT (Long-term) Rates: Greater than 4 hrs - per hour rate",
+   "LT - Long-term (Greater than 4 hrs) per hour rates",
+   "",
    "$19.99",
    "$15.99"
   ],
   [
-   "ST (Short-term) Rates: 1 hr to 4 hrs - per hour rate",
+   "ST - Short-term (1 hr to 4 hrs) per hour rates",
+   "",
    "$21.99",
    "$17.99"
   ],
   [
-   "1 Rates: 1 hour or less rate",
+   "1 hour or less rates",
+   "",
    "$23.99",
    "$19.99"
   ],
   [
-   "One Tol Pod at Full Capacity",
+   "",
+   "",
    "",
    ""
   ],
   [
-   "12:00 am - 6:00 am - LT Rates",
+   "One Tolpods at Full Capacity",
+   "",
+   "",
+   ""
+  ],
+  [
+   "LT rates - 6 hours every day",
+   "",
    "$119.94",
    "$95.94"
   ],
   [
-   "6:00 am - 6:00 pm - ST Rates",
+   "ST rates - 12 hours every day",
+   "",
    "$263.88",
    "$215.88"
   ],
   [
-   "6:00 pm - 12:00 am - 1 Rates (less 1 hr cleaning)",
+   "1-hour rates - 5 hours every day (1 hr cleaning)",
+   "",
    "$109.95",
    "$99.95"
   ],
   [
-   "Total Revenue/day/Tol Pod at Full Capacity",
+   "",
+   "",
+   "",
+   ""
+  ],
+  [
+   "Total Revenue/day/Tolpods at Full Capacity",
+   "",
    "$493.77",
    "$411.77"
   ],
   [
-   "Total Revenue/day/Tol Pod at 75% Capacity (Avg. elite & regular)",
+   "",
+   "",
+   "",
+   ""
+  ],
+  [
+   "Total Revenue/day/Tolpods at 75% Capacity (Avg. regular & Premier)",
+   "",
    "",
    "$339.58"
   ],
   [
-   "Total Revenue/day/Airport at 75% Capacity (10 tolpods)",
+   "Total Revenue/day/Airport at 75% Capacity (10 Tolpods)",
+   "",
    "",
    "$3,395.78"
   ],
   [
-   "Total Revenue/month/Airport (10 tolpods) [30 days]",
+   "Total Revenue/month/Airport (10 Tolpods)",
+   "",
    "",
    "$101,873.25"
   ]
@@ -447,7 +491,7 @@ export const DECK = {
  "options": {
   "Stage 1": {
    "target": 300000,
-   "note": "First-come, first-served until Phase 1 completion",
+   "note": "First-come, first-served",
    "items": [
     [
      300000,
@@ -466,46 +510,11 @@ export const DECK = {
      1
     ]
    ]
-  },
-  "Stage 2": {
-   "target": 300000,
-   "note": "First-come, first-served until Phase 2 completion",
-   "items": [
-    [
-     300000,
-     6
-    ],
-    [
-     150000,
-     3
-    ],
-    [
-     60000,
-     1
-    ]
-   ]
-  },
-  "Stage 3": {
-   "target": 300000,
-   "note": "First-come, first-served until Phase 3 completion",
-   "items": [
-    [
-     300000,
-     4
-    ],
-    [
-     175000,
-     2
-    ],
-    [
-     100000,
-     1
-    ]
-   ]
   }
  },
- "us": "2.5 million",
- "world": "13 million",
+ "us": 2500000,
+ "world": 13000000,
  "usPods": 20000,
- "worldPods": 100000
+ "worldPods": 100000,
+ "goalPods": 2400
 };

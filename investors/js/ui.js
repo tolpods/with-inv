@@ -3,7 +3,7 @@ import * as API from './api.js';
 import { CONFIG } from './config.js';
 
 export const markSvg = (c1 = '#5f7a56', c2 = '#987347', w = 46) => `<svg width="${w}" height="${w * 52 / 96}" viewBox="0 0 96 52" aria-hidden="true"><rect x="2.5" y="2.5" width="91" height="47" rx="23.5" fill="none" stroke="${c1}" stroke-width="5"/><g fill="none" stroke="${c2}" stroke-linecap="round" stroke-linejoin="round" transform="translate(48,26) scale(.92) translate(-48,-27)"><path d="M28 18 L43 31 H57 L71 22" stroke-width="5"/><path d="M25.5 15.5 L29.5 19" stroke-width="7.7"/><path d="M50 31 V38.5 M41 39 H59" stroke-width="3.6"/></g></svg>`;
-export const brand = (sub = 'Investors', href = 'index.html') => h('a', { class: 'brand', href, html: markSvg() + '<span>tolpods</span><small>' + esc(sub) + '</small>' });
+export const brand = (sub = 'Investors', href = 'index.html') => h('a', { class: 'brand', href, html: markSvg() + '<span>Tolpods</span><small>' + esc(sub) + '</small>' });
 
 /* ---- Dev mailbox (mock mode only): shows every email the system "sends" ---- */
 export function mountMailbox() {

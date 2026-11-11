@@ -294,4 +294,4 @@ input:focus, textarea:focus { outline-color: var(--green); }
 #stick { background: rgba(35,43,31,.08); }
 
 
-@media (max-width: 560px) { .nav .nav-inv { display: none; } }
+@media (max-width: 640px) { .nav nav { gap: .35rem; } .nav nav .btn { padding: .5rem .7rem; font-size: .84rem; } .nav nav .btn:not(.nav-inv):not(.primary) { display: none; } }

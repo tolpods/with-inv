@@ -7,8 +7,10 @@ export const CONFIG = {
   liveApiBase: '',
 
   company: 'Tolpods',
-  companyLegal: 'TolPods Inc.',   // used in the NDA and SAFE (from the landing page footer - confirm with counsel)
-  governingLaw: 'the State of Nevada',   // ASSUMED from the Las Vegas address - confirm with counsel
+  companyLegal: 'No Fak Tolpods Inc.',   // from the NDA you supplied (Party A)
+  companyAddress: '1712 S Ventura Dr, Tempe, AZ 85281',
+  companySigner: { name: 'Munazza Farooqi', title: 'President' },
+  governingLaw: 'the State of Arizona',   // from the NDA you supplied (courts of Maricopa County, Arizona)
   legalApproved: false,    // set true once counsel has approved the NDA/SAFE templates (removes the "draft" footer line)
 
   // Admins who can sign in at /investors/admin.html (first run only; later managed in the Admin screen).
@@ -23,7 +25,7 @@ export const CONFIG = {
   // Two generic booking topics (no named people): investors pick the kind of question, you decide who answers.
   calendar: [
     { id: 'investment', label: 'Investment questions', blurb: 'The round, the SAFE, ownership, timing and risk. Ask anything about the terms.', calendly: '', google: '' },
-    { id: 'product',    label: 'Product questions',    blurb: 'The tolpod, the technology, airport rollout and operations. Ask anything about how it works.', calendly: '', google: '' }
+    { id: 'product',    label: 'Product questions',    blurb: 'How Tolpods works: the technology, airport rollout and operations. Ask anything about the product.', calendly: '', google: '' }
   ],
 
   // Address verification. With a Google Address Validation API key it uses Google; otherwise OpenStreetMap

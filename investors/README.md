@@ -29,7 +29,7 @@ All backend calls are the exported functions in `js/api.js`, so swapping is one 
 `js/docs.js` contains a draft NDA and a simplified SAFE-style agreement. They are templates, not legal advice.
 Have your attorney replace them (the official Y Combinator post-money SAFE is the usual choice) and review the securities-law side
 (accredited-investor verification, Regulation D / Form D filings, state notices). Then set `legalApproved: true` in `js/config.js`
-to remove the "draft" line from every PDF. Governing law is assumed to be Nevada and the company name `TolPods Inc.` - confirm both.
+to remove the "draft" line from every PDF. The NDA text, company name (No Fak Tolpods Inc., Tempe, AZ) and Arizona governing law come from the NDA you supplied. The SAFE text is still a draft.
 
 ## Content
 `js/deckdata.js` is generated from the investor deck. The presentation site (`js/present.js`) reads from it.
@@ -47,3 +47,9 @@ A full-screen, slide-by-slide flow (17 slides) instead of a scrolling website. K
   The TSA date and the "13.6M a day" cross-check are our own inference/arithmetic. Re-verify all of these before sending to investors.
 - The occupancy and stake slides use a simple model derived from the deck (rent 35% of gross; break-even about 59% booked). Stake values
   are before dilution and are illustrative only; have counsel review the wording.
+
+## Notes for this version
+- **NDA** now uses your Mutual NDA wording (Party A = No Fak Tolpods Inc., Party B = the investor). Party B's name, address, contact and, for entities, state of incorporation, place of business and signer name/title are filled in automatically from the details form. Party A is shown as a printed name and date (no signature image); add a countersignature step if you want one.
+- **Signed NDA PDF** is stored with the investor and can be downloaded any time: from the investor's own top bar ("Signed NDA") and from the admin dashboard (investor table "PDF" link and the investor detail panel).
+- Only the Stage 1 (seed, $300k) options are shown, in the presentation and in the SAFE step.
+- Home page has Investors and Admin sign-in buttons in the top bar.

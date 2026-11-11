@@ -129,13 +129,49 @@ kbd{font:500 12px var(--mono);border:1px solid #3a4446;border-bottom-width:2px;b
 body.pres-on .dev-fab{bottom:76px;right:12px}
 
 /* sizing guards so every slide fits a laptop screen */
-.slide .panel .chart,.slide .sim .chart{max-height:min(40vh,330px);margin:0 auto}
 .slide .dn-lg em:empty{display:none}
 .pres .seg-row{background:none;border:0;padding:0;box-shadow:none;display:flex;gap:8px;flex-wrap:wrap}
 .pres .seg{background:transparent;color:#cfccbf;border:1px solid #3a4748;box-shadow:none} .pres .seg.on{background:var(--gold);border-color:var(--gold);color:#241c08}
-@media(max-height:820px){.slide h2{margin-bottom:.35em}.big3{margin-bottom:16px}.callout{margin-top:14px}.panel{padding:16px 20px}.slide .panel .chart,.slide .sim .chart{max-height:34vh}}
+@media(max-height:820px){.slide h2{margin-bottom:.35em}.big3{margin-bottom:16px}.callout{margin-top:14px}.panel{padding:16px 20px}}
 .rt-card{display:grid;grid-template-columns:auto 1fr;gap:10px 36px;align-items:center} .rt-card>.eyebrow{grid-column:1/-1} .rt-card dl{border-top:0;padding-top:0;grid-template-columns:1fr auto}
 @media(max-width:700px){.rt-card{grid-template-columns:1fr}}
 .ask-i svg{width:28px;height:28px}
-.slide .panel .chart{max-height:min(36vh,300px)}
-@media(max-height:820px){.slide .panel .chart{max-height:31vh}}
+
+/* ---- bigger, richer charts ---- */
+.slide .chart{display:block;width:100%;height:auto;overflow:visible}
+.slide .chart .ax{font:12px var(--mono);fill:#8a8d82} .slide .chart .lb{font:600 14px var(--sans);fill:var(--fg)} .slide .chart .val{font:600 12.5px var(--mono);fill:var(--fg)} .slide .chart .val.big{font-size:15px;fill:var(--gold)} .slide .chart .nt{font:500 11.5px var(--mono);fill:var(--mut);letter-spacing:.04em}
+.th-paper .chart .val.big{fill:var(--oak)}
+.slide .chart .bar{filter:drop-shadow(0 6px 10px #0000001f);transition:transform .9s cubic-bezier(.2,.8,.2,1),filter .2s;transition-delay:calc(var(--i)*70ms)} .slide .chart .bar:hover{filter:brightness(1.12) drop-shadow(0 8px 14px #0003)}
+.slide .chart .area{opacity:0;transition:opacity 1.2s .5s} .slide.on .chart .area{opacity:1}
+.slide .chart circle{transition:r .2s} .slide .chart circle:hover{r:8}
+.panel.xl{padding:clamp(18px,2.6vw,34px) clamp(16px,2.6vw,36px);border-radius:28px;box-shadow:0 24px 60px #0000001a} .th-night .panel.xl{box-shadow:0 24px 70px #00000066;background:linear-gradient(180deg,#ffffff10,#ffffff06)} .th-paper .panel.xl{background:#fbf8f1}
+.panel.xl h4{font-size:18px} .panel.xl .legend{margin-bottom:4px}
+.sim.xl{border-radius:28px;box-shadow:0 24px 60px #0000001a}
+@media(min-width:900px){.sl-in{max-width:1240px}}
+
+/* ---- overview terminal ---- */
+.terminal{display:grid;grid-template-columns:1fr auto 1.35fr;gap:0;align-items:stretch;margin:6px 0 24px} @media(max-width:720px){.terminal{grid-template-columns:1fr}}
+.zone{background:#faf7f0;border:1px solid #d9d3c3;border-radius:22px;padding:20px 24px} .zone h4{margin:0 0 14px;font:500 11.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mut)} .zone p{margin:12px 0 0;font-size:14px}
+.podrow{display:flex;gap:10px;flex-wrap:wrap} .podrow u{width:34px;height:46px;border-radius:9px 9px 5px 5px;background:linear-gradient(180deg,#7da06f,#4f6b46);position:relative;box-shadow:0 6px 12px #4f6b4640} .podrow u:after{content:"";position:absolute;left:6px;right:6px;top:7px;height:14px;border-radius:4px;background:#e0b55a99}
+.gate{display:grid;place-content:center;padding:0 16px;position:relative} .gate:before{content:"";position:absolute;top:10%;bottom:10%;left:50%;border-left:2px dashed #b9ae92} .gate span{position:relative;background:#f1ecdf;padding:8px 0;writing-mode:vertical-rl;font:500 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--oak)} @media(max-width:720px){.gate{padding:12px 0}.gate:before{inset:50% 10% auto;border-left:0;border-top:2px dashed #b9ae92}.gate span{writing-mode:horizontal-tb;padding:0 10px}}
+.quad{display:grid;grid-template-columns:repeat(4,1fr);gap:14px} @media(max-width:900px){.quad{grid-template-columns:1fr 1fr}} @media(max-width:520px){.quad{grid-template-columns:1fr}} .quad>div{border-top:2px solid var(--ink);padding-top:12px} .quad b{display:block;font-size:17px;font-weight:600;margin-bottom:4px} .quad p{margin:0;font-size:14px}
+
+/* ---- market goal ---- */
+.goal{margin-top:18px;background:linear-gradient(100deg,#e0b55a2a,#e0b55a0d);border:1px solid #e0b55a66;border-radius:22px;padding:clamp(16px,2.4vw,26px)} .goal>div:first-child{display:flex;gap:20px;align-items:center;flex-wrap:wrap} .goal b{font-size:clamp(36px,5vw,64px);letter-spacing:-.05em;font-weight:400;line-height:1;color:var(--oak)} .goal span{font-size:15px;max-width:36em;color:var(--fg)} .goal em{font-style:normal;font-weight:700;color:var(--oak)}
+.goal-bar{height:12px;border-radius:99px;background:#d9d3c3;margin-top:16px;overflow:hidden;position:relative} .goal-bar i{position:absolute;left:0;top:0;bottom:0;width:.6%;min-width:8px;border-radius:99px;background:var(--gold);box-shadow:0 0 0 3px #e0b55a44}
+
+/* ---- pricing slide ---- */
+.rates{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px} @media(max-width:760px){.rates{grid-template-columns:1fr}}
+.rate{background:#ffffff0b;border:1px solid #2a3436;border-radius:20px;padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:2px 14px} .rate i{grid-column:1/-1;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;font-style:normal;color:var(--gold)} .rate small{grid-column:1/-1;color:#8d9288;margin-bottom:8px} .rate span{display:block;font-size:12px;color:#a9ac9f} .rate b{font-size:clamp(26px,3vw,38px);letter-spacing:-.04em;font-weight:500} .rate b.gold{color:var(--gold)} .rate em{grid-column:1/-1;font-style:normal;font-size:12px;color:#7d8277;margin-top:6px}
+.days{display:grid;gap:14px} .days>div{display:grid;grid-template-columns:130px 1fr auto;gap:14px;align-items:center} @media(max-width:700px){.days>div{grid-template-columns:1fr}} .days>div>span:first-child{font-size:13px;color:#a9ac9f} .days small{font:500 12.5px var(--mono);color:#d9d6cb}
+.dbar{display:flex;height:38px;border-radius:12px;overflow:hidden;gap:3px} .dbar i{display:grid;place-content:center;color:#10150f;font:600 12.5px var(--mono);min-width:0} 
+.chain{display:flex;align-items:center;gap:clamp(8px,2vw,22px);flex-wrap:wrap;margin-top:16px} .chain>div{background:#ffffff0b;border:1px solid #2a3436;border-radius:18px;padding:14px 20px} .chain>div.end{border-color:#e0b55a88;background:#e0b55a18} .chain i{display:block;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;font-style:normal;color:#8d9288} .chain b{font-size:clamp(24px,3.2vw,40px);letter-spacing:-.04em;font-weight:500} .chain .end b{color:var(--gold)} .chain small{display:block;color:#a9ac9f;font-size:12px} .chain>span{font:500 18px var(--mono);color:#7d8277}
+
+/* ---- value / stakes / sources ---- */
+.stks{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px} @media(max-width:900px){.stks{grid-template-columns:1fr 1fr}} @media(max-width:480px){.stks{grid-template-columns:1fr}}
+.stk{background:#ffffff0b;border:1px solid #2c3638;border-radius:18px;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:4px 10px} .stk>i{grid-column:1/-1;font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:#d9d6cb} .stk>i small{color:#8d9288;text-transform:none;letter-spacing:0;font-weight:400;margin-left:4px} .stk span{display:block;font-size:11.5px;color:#8d9288} .stk b{font-size:clamp(20px,2.4vw,28px);letter-spacing:-.03em;font-weight:500} .stk b.gold{color:var(--gold)} .stk.roi{border-color:#e0b55a55}
+.srcs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px} @media(max-width:900px){.srcs{grid-template-columns:1fr 1fr}} @media(max-width:480px){.srcs{grid-template-columns:1fr}} .srcs>div{border-top:2px solid var(--gold);padding-top:10px} .srcs i{font:500 11px var(--mono);color:var(--gold);font-style:normal} .srcs b{display:block;font-size:16px;font-weight:600;margin:2px 0 4px} .srcs p{margin:0;font-size:13px}
+
+.th-paper .mk{background:#faf7f0;border-color:#d9d3c3} .th-paper .mk-pods{color:var(--fg);border-top-color:#d3cdbd} .th-paper .mk-pods b{color:var(--oak)} .th-paper .mk-t small{color:var(--oak)} .th-paper .mk-t p{color:var(--mut)}
+#rt{max-height:36vh;margin:0 auto}
+.cal-embed .banner.warn{display:block}
