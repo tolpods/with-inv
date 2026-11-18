@@ -4,8 +4,8 @@ Pages (all under `/investors/`):
 
 | Page | Who | What |
 |---|---|---|
-| `index.html` | Investors | Invite link or email + 5-character code -> emailed one-time code -> details -> NDA (e-sign, PDF) -> presentation site -> SAFE (e-sign, PDF) |
-| `admin.html` | Admins (KJ / Mahesh) | Email + one-time code sign-in. Screen 1: add admin users. Screen 2: invite investors (generates the 5-character code, sends the invite). Settings: Calendly / Google Calendar links |
+| `index.html` | Investors | Invitation code (7 letters/numbers) -> register (name + email) -> emailed one-time code -> details -> NDA (e-sign, PDF, copy emailed) -> presentation site -> SAFE (e-sign, PDF) |
+| `admin.html` | Admins (KJ / Mahesh) | Email + one-time code sign-in. Screen 1: add admin users. Screen 2: invite investors (generates the 7-character code, sends the invite). Settings: Calendly / Google Calendar links |
 | `dashboard.html` | Admins | Separate page: pipeline, NDAs, SAFEs, amounts, address checks, deck progress, support inbox, activity log, CSV export |
 
 ## Running it
@@ -53,3 +53,10 @@ A full-screen, slide-by-slide flow (17 slides) instead of a scrolling website. K
 - **Signed NDA PDF** is stored with the investor and can be downloaded any time: from the investor's own top bar ("Signed NDA") and from the admin dashboard (investor table "PDF" link and the investor detail panel).
 - Only the Stage 1 (seed, $300k) options are shown, in the presentation and in the SAFE step.
 - Home page has Investors and Admin sign-in buttons in the top bar.
+
+
+## v23 notes
+- Admin > Invite investors has **Ready-to-use codes**: generate a pool; whoever enters one registers with their own name and email (each works once).
+- Dashboard has an **NDA signed?** column (Yes/No).
+- Tour video: drop a 3-4 min `tolpods-tour.mp4` into `/assets/` (the product slide plays it).
+- Appendix slides (occupancy simulator, cash flow chart, value chart and stake cards) are reachable from links and the All slides grid, not the main flow.

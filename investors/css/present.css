@@ -175,3 +175,49 @@ body.pres-on .dev-fab{bottom:76px;right:12px}
 .th-paper .mk{background:#faf7f0;border-color:#d9d3c3} .th-paper .mk-pods{color:var(--fg);border-top-color:#d3cdbd} .th-paper .mk-pods b{color:var(--oak)} .th-paper .mk-t small{color:var(--oak)} .th-paper .mk-t p{color:var(--mut)}
 #rt{max-height:36vh;margin:0 auto}
 .cal-embed .banner.warn{display:block}
+
+/* ===== v23 revisions ===== */
+/* small title above a heading = half the size of the heading under it */
+.slide .sl-in>.eyebrow:not(.light),.slide .prod>div>.eyebrow{font-size:clamp(14px,2.1vw,27px);letter-spacing:.05em;line-height:1.1;margin-bottom:2px}
+/* numbers: bold and emphasised everywhere */
+.slide .num{font-weight:800;color:var(--gold);letter-spacing:-.02em} .th-paper .num{color:#7a5a24} .th-plum .num{color:#e3c8ff}
+.slide strong{font-weight:700;color:#fff} .th-paper strong{color:#232b1f}
+.slide .big3 b,.slide .mk-t b,.slide .goal b,.slide .callout b,.slide .chain b,.slide .fact b,.slide .pills b,.slide .sim-k b,.slide .pair b{font-weight:800}
+.hi-n{font-weight:800}
+/* plum (dark purple) theme for the market slide */
+.slide.th-plum{--ink:#f1e8ff;--fg:#efe7fb;--mut:#cdbfe6;--gold:#e8c26a;background:radial-gradient(900px 560px at 88% -8%,#5a2fa0 0,transparent 62%),radial-gradient(700px 520px at -6% 108%,#3b1d72 0,transparent 60%),#150a2b}
+.th-plum p{color:#cdbfe6} .th-plum .serif{color:#d6b6ff} .th-plum .eyebrow,.th-plum .eyebrow.gold{color:#d6b6ff} .th-plum .sl-src{color:#a994cf}
+.th-plum .mk{background:linear-gradient(160deg,#ffffff14,#ffffff06);border:1px solid #6c46b3;box-shadow:0 20px 60px #0006;gap:12px 32px}
+.th-plum .mk-t b{color:#fff;font-size:clamp(44px,5.4vw,80px)} .th-plum .mk-t small{color:#d6b6ff} .th-plum .mk-t p{color:#e4d8f5;font-size:17px;margin:8px 0 18px;line-height:1.5}
+.th-plum .mk-pods{color:#e9defa;border-top:1px solid #6c46b3;padding-top:16px;font-size:17px;line-height:1.5} .th-plum .mk-pods b{color:#ffd77a;font-size:1.9em;font-weight:800;display:block;line-height:1.1;margin:0 0 4px}
+.th-plum .goal{background:linear-gradient(100deg,#8b5cf655,#8b5cf61a);border:1px solid #a98bf0;margin-top:24px} .th-plum .goal b{color:#ffd77a;font-size:clamp(44px,6vw,84px)} .th-plum .goal span{color:#f1e8ff;font-size:18px} .th-plum .goal em{color:#ffd77a}
+.th-plum .goal-bar{background:#3a2470} .th-plum .goal-bar i{background:#ffd77a;box-shadow:0 0 0 3px #ffd77a55}
+.goal-l{font:600 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;font-style:normal;color:#d6b6ff;flex-basis:100%}
+.mk2{gap:clamp(18px,3vw,36px)}
+/* agenda board: 3 columns */
+.bh,.br{grid-template-columns:110px 1fr 120px}
+@media(max-width:620px){.bh,.br{grid-template-columns:62px 1fr}}
+/* tables inside slides */
+.slide .tbl-wrap{overflow-x:auto;margin:6px 0 4px}
+.stbl{border-collapse:collapse;width:100%;min-width:720px;font-size:clamp(13px,1.35vw,17px);font-variant-numeric:tabular-nums}
+.stbl th,.stbl td{padding:clamp(6px,1.1vh,10px) 12px;text-align:right;border-bottom:1px solid #2b3335} .stbl th.l{text-align:left;font-weight:500}
+.stbl thead th{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--gold);vertical-align:bottom;border-bottom:2px solid #3b4547} .stbl thead small{font-weight:400;text-transform:none;letter-spacing:0;color:#8d9288}
+.stbl tr.sum td,.stbl tr.sum th{background:#ffffff0c;font-weight:700} .stbl tr.good td,.stbl tr.good th{color:var(--gold);font-weight:700} .stbl tr.hi td,.stbl tr.hi th{background:#e0b55a1c;font-weight:700}
+.stbl tr.grand td,.stbl tr.grand th{font-size:1.35em}
+.th-paper .stbl th,.th-paper .stbl td{border-bottom-color:#d6d0c0} .th-paper .stbl thead th{color:#7a5a24;border-bottom-color:#b9b19b} .th-paper .stbl tr.sum td,.th-paper .stbl tr.sum th{background:#0000000a} .th-paper .stbl tr.good td,.th-paper .stbl tr.good th{color:#3f6b33} .th-paper .stbl tr.hi td,.th-paper .stbl tr.hi th{background:#c79a6326}
+.panel .stbl{min-width:0} .duo .stbl{min-width:0;font-size:clamp(12.5px,1.25vw,16px)} .stbl .num{font-size:1.12em}
+/* flight statistics */
+.stats4{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:6px 0 18px} @media(max-width:620px){.stats4{grid-template-columns:1fr}}
+.stats4>div{border:1px solid #2b3335;border-radius:16px;padding:14px 16px;background:#ffffff08} .stats4 .num{display:block;font-size:clamp(28px,3.4vw,44px);line-height:1.05;margin-bottom:4px} .stats4 span{font-size:13px;color:#a9ac9f}
+/* tour video */
+.vid{position:relative;border-radius:26px;overflow:hidden;border:1px solid #2b3638;box-shadow:0 30px 80px #0009;background:#000;aspect-ratio:16/9} .vid video{width:100%;height:100%;display:block;object-fit:cover;background:#000}
+.vid-ph{position:absolute;top:14px;left:14px;background:#101315dd;border:1px solid #3a4446;border-radius:999px;padding:6px 14px;font:500 12px var(--mono);color:#e9e6dc;pointer-events:none}
+/* MVP revenue slide: larger type */
+.slide.lg .rate b{font-size:clamp(28px,3.4vw,44px)} .slide.lg .rate i{font-size:13px} .slide.lg .rate small,.slide.lg .rate span{font-size:14px} .slide.lg .days>div>span:first-child{font-size:15px} .slide.lg .chain b{font-size:clamp(30px,4.2vw,54px)} .slide.lg .chain i{font-size:12.5px} .slide.lg .chain small{font-size:14px} .slide.lg .dbar{min-height:44px;font-size:17px}
+.slide.lg h2 .hi-n{color:var(--gold);text-shadow:0 0 28px #e0b55a55}
+/* funding */
+.srcs.five{grid-template-columns:repeat(5,1fr)} @media(max-width:900px){.srcs.five{grid-template-columns:1fr 1fr}} @media(max-width:480px){.srcs.five{grid-template-columns:1fr}}
+.srcs.five b{font-size:17px} .srcs.five i{font-size:13px;font-weight:600}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,3vw,32px);margin-top:20px} @media(max-width:600px){.pair{grid-template-columns:1fr}}
+.pair>div{display:flex;flex-direction:column;gap:4px;background:linear-gradient(100deg,#e0b55a22,#e0b55a08);border:1px solid #e0b55a55;border-radius:20px;padding:clamp(16px,2.4vw,26px)} .pair b{font-size:clamp(40px,6vw,76px);letter-spacing:-.05em;color:var(--gold);line-height:1} .pair span{font-size:15px;color:#cfccbf}
+.slide .notes{font-size:13.5px;color:var(--mut);padding-left:18px;margin:8px 0 0} .slide .notes li{margin:5px 0}

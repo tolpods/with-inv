@@ -10,7 +10,6 @@ import * as S from './store.js';
 import { h, $, $$, esc, toast, download, money, fmtDate, emailOk } from './util.js';
 
 const app = $('#app');
-const DIG = CONFIG.inviteCode.charset === 'digits';
 let me = null, deckCtl = null;
 const qs = new URLSearchParams(location.search);
 const invite = { e: qs.get('e') || '', c: (qs.get('c') || '').toUpperCase() };
@@ -44,27 +43,36 @@ function loginView(stage = 1, ctx = {}) {
     h('h1', { html: 'Tolpods. <em>Our focus is on the people.</em>' }), h('p', {}, 'A private, secure space to review the Tolpods investment opportunity: the product, the projections and the terms.')),
     h('div', { class: 'fine' }, 'Confidential · NDA required'));
   let right;
+  const LEN = CONFIG.inviteCode.length;
   if (stage === 1) {
-    const email = h('input', { class: 'inp', type: 'email', value: ctx.email ?? invite.e, placeholder: 'you@example.com', autocomplete: 'email', inputmode: 'email', 'aria-label': 'Email address' });
-    const code = h('input', { class: 'inp code-inp', value: ctx.code ?? invite.c, maxlength: 5, placeholder: DIG ? '00000' : 'XXXXX', autocomplete: 'off', inputmode: DIG ? 'numeric' : 'text', pattern: DIG ? '[0-9]*' : null, autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Invitation code' });
-    code.addEventListener('input', () => code.value = code.value.toUpperCase().replace(DIG ? /[^0-9]/g : /[^A-Z0-9]/g, ''));
+    const code = h('input', { class: 'inp code-inp', value: ctx.code ?? invite.c, maxlength: LEN, placeholder: 'X'.repeat(LEN), autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Tolpods invitation code' });
+    code.addEventListener('input', () => code.value = code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''));
     const err = h('div', { class: 'err-t', role: 'alert' }), btn = h('button', { class: 'btn lg', style: 'width:100%' }, 'Continue');
-    const form = h('form', { onsubmit: async e => { e.preventDefault(); err.textContent = ''; btn.disabled = true; const r = await API.investorRequestCode(email.value, code.value); btn.disabled = false; if (!r.ok) { err.textContent = r.error; return; } loginView(2, { email: email.value.trim().toLowerCase(), code: code.value }); } },
-      !(invite.e && invite.c) && CONFIG.mode === 'mock' ? h('div', { class: 'banner warn' }, 'Prototype: no invitation yet? Open the ✉ Dev mailbox (bottom right) and tap "＋ Sample investor invite". Your 5-digit code will appear in the email.') : null,
-      invite.e && invite.c ? h('div', { class: 'banner good' }, '✓ Your email and invitation code were filled in from your invitation. Tap Continue.') : null,
-      h('div', { class: 'field' }, h('label', {}, 'Email address'), email), h('div', { class: 'field' }, h('label', {}, 'Invitation code'), code, h('span', { class: 'hint' }, DIG ? 'The 5-digit number from your invitation email. This is not the 6-digit code we email after you continue.' : 'The 5-character code from your invitation email.')), err, btn,
-      h('p', { style: 'margin-top:18px;font-size:14px' }, h('button', { type: 'button', class: 'link', onclick: () => supportModal({ kind: 'signin', email: email.value }) }, 'Trouble with your code?')), h('p', { style: 'font-size:13.5px;color:var(--faint)' }, 'Tolpods team member? ', h('a', { href: 'admin.html' }, 'Admin sign in'), ' · ', h('a', { href: '../index.html' }, '← Back to tolpods.com')));
-
-    // Prototype helper (mock mode only): shows the invitations created in THIS browser so testers can find their 5-digit code.
-    let devBox = null;
+    const form = h('form', { onsubmit: async e => { e.preventDefault(); err.textContent = ''; const r = API.lookupCode(code.value); if (!r.ok) { err.textContent = r.error; return; }
+        if (r.kind === 'returning') { btn.disabled = true; const q = await API.investorRequestCode(r.email, r.code); btn.disabled = false; if (!q.ok) { err.textContent = q.error; return; } return loginView(3, { email: r.email, code: r.code }); }
+        loginView(2, { code: r.code, kind: r.kind, name: r.name || '', email: r.email || '' }); } },
+      invite.c ? h('div', { class: 'banner good' }, '✓ Your code was filled in from your invitation. Tap Continue.') : null,
+      h('div', { class: 'field' }, h('label', {}, 'Tolpods invitation code'), code, h('span', { class: 'hint' }, `The ${LEN}-character code sent to you by Tolpods. Letters and numbers.`)), err, btn,
+      h('p', { style: 'margin-top:18px;font-size:14px' }, h('button', { type: 'button', class: 'link', onclick: () => supportModal({ kind: 'signin', email: '' }) }, 'Trouble with your code?')), h('p', { style: 'font-size:13.5px;color:var(--faint)' }, 'Tolpods team member? ', h('a', { href: 'admin.html' }, 'Admin sign in'), ' · ', h('a', { href: '../index.html' }, '← Back to tolpods.com')));
+    let devBox = null;   // Prototype helper (mock mode only)
     if (CONFIG.mode === 'mock') {
       const inv = S.load().invites.filter(i => i.status !== 'revoked');
       devBox = h('div', { class: 'banner warn', style: 'margin-top:18px;flex-direction:column;gap:8px' }, h('b', {}, 'Prototype helper (trial only)'),
-        inv.length ? [h('span', {}, 'Invitations created in this browser. Tap one to fill in the email and code:'), ...inv.slice(0, 5).map(i => h('button', { type: 'button', class: 'btn ghost sm', style: 'justify-content:flex-start', onclick: () => { email.value = i.email; code.value = i.code; } }, `${i.name} · ${i.email} · code ${i.code}`))]
-          : h('span', {}, 'No investor invitations exist yet in this browser. Open ', h('a', { href: 'admin.html' }, 'Admin sign in'), ' > Invite investors, create one, and the 5-digit code appears there.'));
+        inv.length ? [h('span', {}, 'Codes created in this browser. Tap one to fill it in:'), ...inv.slice(0, 6).map(i => h('button', { type: 'button', class: 'btn ghost sm', style: 'justify-content:flex-start', onclick: () => { code.value = i.code; } }, `${i.code} · ${i.status === 'pool' ? 'unused pool code' : i.name + ' · ' + i.email}`))]
+          : h('span', {}, 'No codes exist yet in this browser. Open ', h('a', { href: 'admin.html' }, 'Admin sign in'), ' > Invite investors and create a code (or a pool of codes).'));
     }
-    right = h('div', { class: 'login-box' }, h('h2', {}, 'Sign in'), h('p', {}, 'Enter your email and invitation code. We will then email you a one-time verification code.'), form, devBox);
-  } else {
+    right = h('div', { class: 'login-box' }, h('h2', {}, 'Welcome'), h('p', {}, 'Enter the invitation code from Tolpods to begin. Next you register, then sign the NDA.'), form, devBox);
+  } else if (stage === 2) {
+    const name = h('input', { class: 'inp', value: ctx.name || '', placeholder: 'Your full name', autocomplete: 'name', 'aria-label': 'Full name' });
+    const email = h('input', { class: 'inp', type: 'email', value: ctx.email || '', readonly: ctx.kind === 'invite' ? true : null, placeholder: 'you@example.com', autocomplete: 'email', inputmode: 'email', 'aria-label': 'Email address' });
+    const err = h('div', { class: 'err-t', role: 'alert' }), btn = h('button', { class: 'btn lg', style: 'width:100%' }, 'Register and email me a code');
+    const form = h('form', { onsubmit: async e => { e.preventDefault(); err.textContent = ''; btn.disabled = true; const r = await API.investorRequestCode(email.value, ctx.code, name.value); btn.disabled = false; if (!r.ok) { err.textContent = r.error; return; } loginView(3, { ...ctx, email: email.value.trim().toLowerCase(), name: name.value.trim() }); } },
+      h('div', { class: 'banner good' }, '✓ Code accepted: ', h('b', {}, ctx.code)),
+      h('div', { class: 'field' }, h('label', {}, 'Full name'), name), h('div', { class: 'field' }, h('label', {}, 'Email address'), email, h('span', { class: 'hint' }, ctx.kind === 'invite' ? 'This is the address your invitation was sent to.' : 'We will email a one-time verification code to this address.')), err, btn,
+      h('p', { style: 'margin-top:16px;font-size:14px' }, h('button', { type: 'button', class: 'link', onclick: () => loginView(1, { code: '' }) }, '← Use a different code')));
+    right = h('div', { class: 'login-box' }, h('h2', {}, 'Register'), h('p', {}, 'A few details so we know who is signing in. You will add the rest, then sign the NDA.'), form);
+    setTimeout(() => (name.value ? email : name).focus(), 50);
+  } else {   // stage 3: one-time code
     const boxes = Array.from({ length: CONFIG.otp.length }, (_, i) => h('input', { inputmode: 'numeric', maxlength: 1, autocomplete: i ? 'off' : 'one-time-code', 'aria-label': 'Digit ' + (i + 1) }));
     const err = h('div', { class: 'err-t', role: 'alert', style: 'text-align:center' }), btn = h('button', { class: 'btn lg', style: 'width:100%' }, 'Verify and sign in');
     boxes.forEach((b, i) => {
@@ -74,10 +82,10 @@ function loginView(stage = 1, ctx = {}) {
     });
     const resend = h('button', { type: 'button', class: 'link' }, 'Resend code'); let cd = CONFIG.otp.resendSec;
     const tick = () => { if (!resend.isConnected) return; resend.disabled = cd > 0; resend.textContent = cd > 0 ? `Resend code in ${cd}s` : 'Resend code'; if (cd-- > 0) setTimeout(tick, 1000); }; tick();
-    resend.onclick = async () => { const r = await API.investorRequestCode(ctx.email, ctx.code); if (!r.ok) return toast(r.error, 'err'); cd = CONFIG.otp.resendSec; tick(); toast('A new code was sent'); };
-    const form = h('form', { onsubmit: async e => { e.preventDefault(); err.textContent = ''; btn.disabled = true; const r = await API.investorVerify(ctx.email, ctx.code, boxes.map(b => b.value).join('')); btn.disabled = false; if (!r.ok) { err.textContent = r.error; boxes.forEach(b => b.value = ''); boxes[0].focus(); return; } me = API.investorMe(); toast('Signed in'); location.hash = ''; render(); } },
+    resend.onclick = async () => { const r = await API.investorRequestCode(ctx.email, ctx.code, ctx.name); if (!r.ok) return toast(r.error, 'err'); cd = CONFIG.otp.resendSec; tick(); toast('A new code was sent'); };
+    const form = h('form', { onsubmit: async e => { e.preventDefault(); err.textContent = ''; btn.disabled = true; const r = await API.investorVerify(ctx.email, ctx.code, boxes.map(b => b.value).join(''), ctx.name); btn.disabled = false; if (!r.ok) { err.textContent = r.error; boxes.forEach(b => b.value = ''); boxes[0].focus(); return; } me = API.investorMe(); toast('Signed in'); location.hash = ''; render(); } },
       h('div', { class: 'otp' }, boxes), err, btn,
-      h('p', { style: 'text-align:center;margin-top:16px;font-size:14px' }, resend, ' · ', h('button', { type: 'button', class: 'link', onclick: () => loginView(1, ctx) }, 'Use a different email')),
+      h('p', { style: 'text-align:center;margin-top:16px;font-size:14px' }, resend, ' · ', h('button', { type: 'button', class: 'link', onclick: () => loginView(1, { code: '' }) }, 'Start over')),
       h('p', { style: 'text-align:center;font-size:14px' }, h('button', { type: 'button', class: 'link', onclick: () => supportModal({ kind: 'signin', email: ctx.email }) }, "Didn't get a code? Get help")));
     right = h('div', { class: 'login-box' }, h('h2', {}, 'Check your email'), h('p', {}, `We sent a ${CONFIG.otp.length}-digit code to `, h('b', {}, ctx.email), `. It expires in ${CONFIG.otp.ttlMin} minutes.`), CONFIG.mode === 'mock' ? h('div', { class: 'banner warn' }, 'Prototype: open the ✉ Dev mailbox (bottom right) to read your code.') : null, form);
     setTimeout(() => boxes[0].focus(), 50);
@@ -149,7 +157,7 @@ function ndaView() {
   if (signed) {
     body = h('div', { class: 'wrap' }, h('div', { class: 'eyebrow' }, 'Step 2 of 4'), h('h1', {}, 'Your NDA is ', h('span', { class: 'serif' }, 'signed')),
       h('div', { class: 'banner good' }, '🔒 Signed ', fmtDate(me.nda.at, true), '. This agreement can no longer be edited. A copy was emailed to ', h('b', {}, me.email), '.'),
-      box, h('div', { class: 'actions' }, dl(me.nda.id, me.nda.pdf), h('span', { class: 'sp', style: 'flex:1' }), h('button', { class: 'btn', onclick: () => go('deck') }, 'Continue to the presentation →')));
+      box, h('div', { class: 'actions' }, dl(me.nda.id, me.nda.pdf), h('button', { class: 'btn ghost', onclick: () => { const r = API.emailNdaCopy(); toast(r.ok ? 'A copy was emailed to ' + me.email : r.error, r.ok ? '' : 'err'); } }, '✉ Email me a copy'), h('span', { class: 'sp', style: 'flex:1' }), h('button', { class: 'btn', onclick: () => go('deck') }, 'Continue to the presentation →')));
   } else {
     const chk = h('input', { type: 'checkbox', disabled: true }), pad = h('div', {}), sigHost = pad; const sp = signaturePad(pad, { name: D.signerName(me.profile) || '' });
     const hint = h('div', { class: 'scrollhint' }, '↓ Scroll to the end of the agreement to continue');

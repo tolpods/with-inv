@@ -100,3 +100,4 @@ p{margin:0 0 1em;color:var(--muted)} .eyebrow{font:500 11px var(--mono);letter-s
 .next{text-align:left;max-width:520px;margin:10px auto 22px;color:var(--muted);line-height:1.8}
 .tile[role=button]{outline-offset:2px}
 @media(max-width:860px){.top-in{flex-wrap:wrap}.steps{order:5;width:100%;justify-content:space-between;margin:0}.top .sp{display:none}.stp{padding:5px 8px}}
+.banner.warn .btn.ghost{color:#f3e7c4;border-color:#8a7440}

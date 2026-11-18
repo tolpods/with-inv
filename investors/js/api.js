@@ -83,6 +83,19 @@ export function removeAdmin(email) {
 /* ---------- admin: invites ---------- */
 function newCode() { const d = db(); for (; ;) { const c = Array.from(rnd(CONFIG.inviteCode.length), x => CODE_CHARS[x % CODE_CHARS.length]).join(''); if (!d.invites.some(i => i.code === c)) return c; } }
 export const listInvites = () => { needAdmin(); return db().invites; };
+/* Pre-generated code pool: unassigned codes the team can hand out. Whoever enters one registers with their own name and email. */
+export function createPool(n) {
+  const me = needAdmin(); n = Math.max(1, Math.min(50, Math.round(Number(n) || 0))); const d = db(), made = [];
+  for (let k = 0; k < n; k++) { const c = { code: newCode(), name: '', email: '', note: 'Pool code', status: 'pool', createdAt: Date.now(), createdBy: me.email, sentAt: null, sendCount: 0 }; d.invites.unshift(c); made.push(c); }
+  S.save(); audit(me.email, 'invite.pool', n + ' codes'); return ok({ codes: made });
+}
+/* Step 1 of first login: what kind of code is this? (no email needed) */
+export function lookupCode(code) {
+  code = String(code || '').trim().toUpperCase(); if (!/^[A-Z0-9]{5,7}$/.test(code)) return fail('Enter the ' + CONFIG.inviteCode.length + '-character code from Tolpods.');
+  const inv = db().invites.find(i => i.code === code && i.status !== 'revoked'); if (!inv) return fail("We don't recognise that code. Check it, or tap \"Trouble with your code?\".");
+  if (inv.status === 'pool') return ok({ kind: 'pool', code });
+  return ok({ kind: db().investors[inv.email] ? 'returning' : 'invite', code, name: inv.name, email: inv.email });
+}
 export function createInvite({ name, email, note }) {
   const me = needAdmin(); email = norm(email);
   if (!name?.trim() || !emailOk(email)) return fail('Enter the investor\'s name and a valid email.');
@@ -95,7 +108,7 @@ export function inviteLink(inv, base) {
 }
 function mailInvite(inv, base, sender) {
   const link = inviteLink(inv, base);
-  sendMail({ to: inv.email, kind: 'invite', subject: 'You are invited: Tolpods investor presentation', text: `Hello ${inv.name},\n\nYou have been invited to review the Tolpods investor presentation (by invitation only).\n\nYour invitation code: ${inv.code}\n\nClick to start - your email and code are filled in for you:\n${link}\n\nOr go to the investor sign-in page and enter this email address and the 5-digit invitation code above. For your security we will then email a one-time verification code each time you sign in.\n\nHaving trouble? Use "Trouble with your code?" on the sign-in page, or reply to this email.\n\n- ${sender}, Tolpods` });
+  sendMail({ to: inv.email, kind: 'invite', subject: 'You are invited: Tolpods investor presentation', text: `Hello ${inv.name},\n\nYou have been invited to review the Tolpods investor presentation (by invitation only).\n\nYour invitation code: ${inv.code}\n\nClick to start - your email and code are filled in for you:\n${link}\n\nOr go to the investor sign-in page and enter this email address and the invitation code above. For your security we will then email a one-time verification code each time you sign in.\n\nHaving trouble? Use "Trouble with your code?" on the sign-in page, or reply to this email.\n\n- ${sender}, Tolpods` });
   inv.sentAt = Date.now(); inv.sendCount++; S.save();
 }
 export function sendInvite(code, base) {
@@ -113,18 +126,21 @@ export function createDemoInvite(base) {
 export function revokeInvite(code) { const me = needAdmin(), i = db().invites.find(x => x.code === code); if (!i) return fail('Not found.'); i.status = 'revoked'; S.save(); audit(me.email, 'invite.revoke', i.email); return ok(); }
 
 /* ---------- investor auth ---------- */
-export async function investorRequestCode(email, code) {
+function poolBlock(d, inv, email) { return inv.status === 'pool' && (d.investors[email] || d.invites.some(i => i.email === email && i.status !== 'revoked')) ? 'That email is already registered. Use the code from your own invitation, or contact us.' : null; }
+export async function investorRequestCode(email, code, name = '') {
   email = norm(email); code = String(code || '').trim().toUpperCase();
-  if (!emailOk(email) || !/^[A-Z0-9]{5}$/.test(code)) return fail(CONFIG.inviteCode.charset === 'digits' ? 'Enter your email and the 5-digit invitation code.' : 'Enter your email and the 5-character invitation code.');
-  const inv = db().invites.find(i => i.code === code && i.email === email && i.status !== 'revoked');
-  if (!inv) return fail("That email and invitation code don't match. Check your invitation, or tap \"Trouble with your code?\".");
-  const r = await issueOtp('investor', email, inv.name); if (r.wait) return fail('Please wait ' + r.wait + 's before requesting another code.');
+  if (!emailOk(email) || !/^[A-Z0-9]{5,7}$/.test(code)) return fail('Enter a valid email address and your invitation code.');
+  const d = db(), inv = d.invites.find(i => i.code === code && i.status !== 'revoked');
+  if (!inv || (inv.status !== 'pool' && inv.email !== email)) return fail("That email and invitation code don't match. Check your invitation, or tap \"Trouble with your code?\".");
+  if (inv.status === 'pool') { if (!String(name).trim()) return fail('Please enter your full name.'); const b = poolBlock(d, inv, email); if (b) return fail(b); }
+  const r = await issueOtp('investor', email, inv.name || name); if (r.wait) return fail('Please wait ' + r.wait + 's before requesting another code.');
   return ok();
 }
-export async function investorVerify(email, code, otp) {
+export async function investorVerify(email, code, otp, name = '') {
   email = norm(email); code = String(code || '').trim().toUpperCase();
-  const d = db(), inv = d.invites.find(i => i.code === code && i.email === email && i.status !== 'revoked');
+  const d = db(), inv = d.invites.find(i => i.code === code && i.status !== 'revoked' && (i.status === 'pool' || i.email === email));
   if (!inv || !(await checkOtp('investor', email, otp))) return fail('That code is wrong or has expired.');
+  if (inv.status === 'pool') { if (poolBlock(d, inv, email)) return fail('That email is already registered.'); inv.email = email; inv.name = String(name).trim() || email; inv.status = 'invited'; inv.note = 'Registered with a pool code'; audit(email, 'invite.pool-used', code); }
   let me = d.investors[email];
   if (!me) { me = d.investors[email] = { email, code, name: inv.name, profile: { contactEmail: email }, nda: null, safe: null, viewed: {}, clicks: {}, events: [], createdAt: Date.now() }; ev(me, 'first-login'); }
   inv.status = 'active'; me.lastLogin = Date.now(); ev(me, 'login'); S.save(); startSession('investor', email); return ok();
@@ -156,6 +172,10 @@ export async function signNda({ sig }) {
   return ok({ id });
 }
 
+export function emailNdaCopy() {
+  const me = needInvestor(); if (!me.nda) return fail('No signed NDA yet.');
+  sendMail({ to: me.email, kind: 'nda', attachments: [{ name: me.nda.id + '.pdf', dataUrl: me.nda.pdf }], subject: 'Your signed Tolpods NDA (copy attached)', text: `Hello ${me.name},\n\nAs requested, here is another copy of your signed Tolpods Non-Disclosure Agreement.\n\n- Tolpods` }); return ok();
+}
 export function saveDraft(draft) { try { const me = needInvestor(); me.draft = { ...(me.draft || {}), ...draft }; S.save(); } catch { } }
 
 /* ---------- investor: presentation tracking ---------- */
@@ -211,7 +231,7 @@ export function statusOf(inv, me) {
 }
 export function dashboard() {
   needAdmin(); const d = db();
-  const rows = d.invites.map(inv => { const me = d.investors[inv.email]; const st = statusOf(inv, me); return { invite: inv, me, status: st, viewedCount: me ? Object.keys(me.viewed || {}).length : 0 }; });
+  const rows = d.invites.filter(i => i.status !== 'pool').map(inv => { const me = d.investors[inv.email]; const st = statusOf(inv, me); return { invite: inv, me, status: st, viewedCount: me ? Object.keys(me.viewed || {}).length : 0 }; });
   const committed = rows.reduce((s, r) => s + (r.me?.safe?.amount || 0), 0);
   return { rows, committed, tickets: d.tickets, audit: d.audit, outbox: d.outbox.length };
 }
