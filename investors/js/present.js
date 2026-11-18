@@ -43,12 +43,13 @@ function slidesFor({ me, settings, productHref, onInvest, onHelp, onTrack }) {
   const IPO = PH.length - 1;
 
   /* ---- Welcome */
-  add({ id: 'welcome', ch: 'overview', th: 'night', title: 'Welcome aboard', html: `
+  add({ id: 'welcome', ch: 'overview', th: 'night', cls: 'cover', title: 'Welcome aboard', html: `
     <div class="radar" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     ${tag('Investors by invitation only', 'gold')}
     <h1 class="mega">Tolpods<span class="serif">our focus is on the people.</span></h1>
-    <p class="lede" data-b="1">Welcome aboard, please set aside <b>30 min</b> for this presentation.</p>
-    <div class="cue" data-b="2">Press <kbd>→</kbd> or swipe to begin</div>` });
+    <p class="lede big-l" data-b="1">Welcome aboard, please set aside <b>30 min</b> for this presentation.</p>
+    <div class="cover-chips" data-b="2"><span>Private space</span><span>In the middle of the airport</span><span>Technology + hospitality</span></div>
+    <div class="cue" data-b="3">Press <kbd>→</kbd> or swipe to begin</div>` });
 
   add({ id: 'aboard', ch: 'overview', th: 'night', title: 'Welcome aboard', html: `
     ${tag('Welcome', 'gold')}<h2>Welcome aboard, <span class="serif">${esc(name)}</span></h2>
@@ -71,10 +72,32 @@ function slidesFor({ me, settings, productHref, onInvest, onHelp, onTrack }) {
   const pods = n => Array.from({ length: n }, () => '<u></u>').join('');
   add({ id: 'overview', ch: 'overview', th: 'paper', title: 'What Tolpods are', html: `
     ${tag('Tolpods: overview')}<h2>A private space in the <span class="serif">middle of the airport</span></h2>
-    <div class="terminal" aria-label="Tolpods before and beyond security">
-      <div class="zone" data-b="1"><h4>Before security</h4><div class="podrow">${pods(3)}</div><p>Tolpods within the public terminal.</p></div>
-      <div class="gate" data-b="2" aria-hidden="true"><span>Security</span></div>
-      <div class="zone" data-b="2"><h4>Beyond security</h4><div class="podrow">${pods(5)}</div><p>Tolpods before and beyond airport security.</p></div>
+    <div class="airmap" aria-label="Airport map: Tolpods before and beyond security">
+      <svg viewBox="0 0 1000 330" role="img">
+        <defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fb27f"/><stop offset="1" stop-color="#4a6a41"/></linearGradient>
+          <g id="pod"><rect x="-15" y="-24" width="30" height="46" rx="8" fill="url(#pg)"/><rect x="-9" y="-17" width="18" height="11" rx="3" fill="#e0b55a"/><rect x="-6" y="22" width="12" height="3" rx="1.5" fill="#33432e" opacity=".5"/></g>
+          <g id="plane"><path d="M-12 -2.5 L5 -2.5 L12 0 L5 2.5 L-12 2.5 L-8 0 Z M-4 -2.5 L-8 -10 L-4.5 -10 L1.5 -2.5 Z M-4 2.5 L-8 10 L-4.5 10 L1.5 2.5 Z" fill="#7a7c70"/></g></defs>
+        <g data-b="1">
+          <rect x="14" y="20" width="400" height="290" rx="26" fill="#faf7f0" stroke="#cfc8b5" stroke-width="2"/>
+          <text x="38" y="52" class="am-h">BEFORE SECURITY · PUBLIC TERMINAL</text>
+          ${[0, 1, 2, 3].map(i => `<rect x="${44 + i * 60}" y="74" width="44" height="16" rx="4" fill="#d9d3c3"/>`).join('')}<text x="44" y="112" class="am-s">Check-in</text>
+          ${[0, 1, 2].map(i => `<use href="#pod" x="${96 + i * 90}" y="214"/>`).join('')}
+          <text x="96" y="268" class="am-t">TOLPODS</text><text x="96" y="286" class="am-s">in the public terminal</text>
+        </g>
+        <g data-b="2">
+          <rect x="424" y="20" width="62" height="290" rx="14" fill="#232b1f"/>
+          ${[0, 1, 2, 3, 4].map(i => `<rect x="436" y="${60 + i * 46}" width="38" height="26" rx="5" fill="#3a463a"/>`).join('')}
+          <text x="455" y="46" text-anchor="middle" class="am-h" style="font-size:10px;letter-spacing:.04em" fill="#e0b55a">SECURITY</text>
+          <rect x="498" y="20" width="488" height="290" rx="26" fill="#faf7f0" stroke="#cfc8b5" stroke-width="2"/>
+          <text x="522" y="52" class="am-h">BEYOND SECURITY · CONCOURSE</text>
+          ${[0, 1, 2, 3, 4].map(i => `<rect x="${524 + i * 90}" y="70" width="70" height="40" rx="8" fill="#ece6d6"/><use href="#plane" x="${559 + i * 90}" y="90"/><text x="${559 + i * 90}" y="128" text-anchor="middle" class="am-s">Gate ${i + 1}</text>`).join('')}
+          ${[0, 1, 2, 3, 4].map(i => `<use href="#pod" x="${560 + i * 90}" y="214"/>`).join('')}
+          <text x="524" y="268" class="am-t">TOLPODS</text><text x="524" y="286" class="am-s">before and beyond airport security</text>
+        </g>
+        <path id="walk" d="M30 160 H960" fill="none"/>
+        ${[0, 1, 2, 3, 4, 5].map(i => `<circle r="5" fill="#c79a63"><animateMotion dur="14s" begin="${-i * 2.3}s" repeatCount="indefinite" path="M30 ${150 + (i % 3) * 14} H960"/></circle>`).join('')}
+      </svg>
+      <div class="am-cap" data-b="2"><p>Tolpods within the public terminal.</p><p>Tolpods before and beyond airport security.</p></div>
     </div>
     <div class="quad" data-b="3">
       <div><b>Private and secure</b><p>A fully private luxury space/experience with premium hospitality.</p></div>
@@ -196,11 +219,18 @@ function slidesFor({ me, settings, productHref, onInvest, onHelp, onTrack }) {
     ${tag('MVP’s expenditure and profits')}<h2>What it costs, and <span class="serif">what is left</span></h2>
     <div class="panel xl" data-b="1">${stbl(['Monthly, 1 cluster (10 Tolpods)', 'Per month'], [{ c: ['Cluster monthly expenditure', nb(money(E.cluster[0]))] }, { c: ['Corporate monthly expenditure', money(E.corporate[0])] }, { cls: 'sum', c: ['Total monthly expenditure', nb(money(E.total[0]))] }, { cls: 'good grand', c: ['Monthly profit', nb(money(D.profit[0]))] }])}</div>
     <p class="fine" data-b="2">Profit is revenue of ${money(R.total[0])} less expenditure of ${money(E.total[0])}, at 75% capacity. <button class="lnk" data-go="mvp-detail">Cluster expenditure in detail</button></p>` });
-  const detRows = D.mvpExpenses.slice(2).filter(r => r[1]).map(r => ({ cls: /^Total/.test(r[0]) ? 'sum' : '', c: [esc(r[0].replace(/Expenses/g, 'expenditure')), /^Total/.test(r[0]) ? nb(r[1]) : r[1]] }));
+  const clean = t => String(t).replace(/\*+/g, '').replace(/expenses/gi, m => m[0] === 'E' ? 'Expenditure' : 'expenditure').replace(/\s+/g, ' ').trim();
+  const detRows = D.mvpExpenses.slice(2).filter(r => r[1]).map(r => ({ cls: /^Total/.test(r[0]) ? 'sum' : '', c: [esc(clean(r[0])), /^Total/.test(r[0]) ? nb(r[1]) : r[1]] }));
+  const nt = D.mvpExpenseNotes.map(clean), mk = nt.findIndex(x => /^Marketing & Advertising$/.test(x));
+  const noteMain = nt.slice(0, mk), noteMk = nt.slice(mk + 1);
+  const detPie = expRows.map((r, i) => ({ name: r[0], value: r[1], color: [COL.oak, COL.green, COL.gold, COL.sky, COL.stone][i] }));
   add({ id: 'mvp-detail', ch: 'cashflow', th: 'paper', title: 'Cluster expenditure in detail', src: ['model'], html: `
     ${tag('Cluster monthly expenditure at launch of MVP')}<h2>Where the ${money(E.cluster[0])} <span class="serif">goes</span></h2>
-    <div class="duo tight"><div class="panel" data-b="1">${stbl(['Expenditure line', 'Per month'], detRows)}</div>
-    <div class="panel" data-b="2"><h4>Notes</h4><ul class="notes">${D.mvpExpenseNotes.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>` });
+    <div class="tri">
+      <div class="panel" data-b="1"><h4>Share of spend</h4><div class="dn-col">${donut({ data: detPie, size: 210, thick: 34, center: compact(E.cluster[0]), sub: 'per month' })}${donutLegend(detPie, E.cluster[0], money)}</div></div>
+      <div class="panel" data-b="1">${stbl(['Expenditure line', 'Per month'], detRows)}</div>
+      <div class="panel notes2" data-b="2"><h4>Notes</h4><ul>${noteMain.map(x => `<li>${esc(x)}</li>`).join('')}</ul><h5>Marketing &amp; advertising</h5><ul>${noteMk.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    </div>` });
 
   /* ---- Cash flow by phase (big chart) */
   const cashTbl = table(['Monthly, at 75% capacity', ...PH], [
@@ -246,11 +276,14 @@ function slidesFor({ me, settings, productHref, onInvest, onHelp, onTrack }) {
   /* ---- Capital: where the money goes */
   const cap = [['Product purchase', C['Product Purchase'], COL.green], ['Inventory', C['Inventory'], COL.oak], ['Other equipment', C['Other Equipment'], COL.sage], ['Leases & deposits', C['Lease'], COL.gold], ['Product development', C['Product Development'], COL.cream], ['Loan servicing', C['Loan Servicing'], COL.stone], ['Miscellaneous (incl. HR)', C['Miscellaneous'], COL.clay]];
   const capTot = cap.map(c => ({ name: c[0], value: c[1].reduce((a, b) => a + b, 0), color: c[2] })), capSum = capTot.reduce((a, b) => a + b.value, 0);
-  const capTbl = table(['Capital requirement', ...PH.map((p, i) => `${p}<br><small>Month ${D.capMonths[i]}</small>`)], [...cap.map(c => ({ c: [c[0], ...c[1].map(money)] })), { cls: 'sum', c: ['Total capital requirement', ...C['Total Capital'].map(money)] }, { c: ['Projected gross profits', ...C['Projected Gross'].map(money)] }, { cls: 'sum', c: ['Net capital requirement', ...C['Net Capital'].map(money)] }, { cls: 'good', c: ['Potential dividends', ...C['Potential'].map(money)] }]);
-  add({ id: 'capital', ch: 'capital', th: 'paper', title: 'Where the money goes', src: ['model'], html: `
+  const capHead = ['Capital requirement', ...PH.map((p, i) => `${p}<br><small>Month ${D.capMonths[i]}</small>`)];
+  const capTbl = stbl(capHead, [...cap.map(c => ({ c: [c[0], ...c[1].map(money)] })), { cls: 'sum', c: ['Total capital requirement', ...C['Total Capital'].map(x => nb(money(x)))] }, { c: ['Projected gross profits', ...C['Projected Gross'].map(money)] }, { cls: 'sum', c: ['Net capital requirement', ...C['Net Capital'].map(money)] }, { cls: 'good', c: ['Potential dividends', ...C['Potential'].map(x => nb(money(x)))] }]);
+  const capPies = PH.map((p, i) => `<div class="cp"><b>${p}</b>${donut({ data: cap.map(c => ({ name: c[0], value: c[1][i], color: c[2] })), size: 150, thick: 24, center: compact(C['Total Capital'][i]), sub: 'total', fmt: compact })}</div>`).join('');
+  add({ id: 'capital', ch: 'capital', th: 'paper', title: 'Where every dollar goes', src: ['model'], html: `
     ${tag('Capital requirements')}<h2>Where every dollar <span class="serif">goes</span></h2>
-    <div class="panel xl" data-b="1"><h4>By phase <small>total capital requirement ${compact(capSum)}</small></h4>${legend(cap.map(c => ({ name: c[0], color: c[2] })))}${stackedBars({ labels: PH, series: cap.map(c => ({ name: c[0], color: c[2], values: c[1] })), totals: C['Total Capital'], H: 360 })}</div>
-    <p class="fine" data-b="2">The largest line is the Tolpods themselves: the first cluster at $50,000 per Tolpods, 10% cheaper with every new phase as orders grow. Inventory averages $2,000 per Tolpods. <button class="lnk" data-sheet="cap">Full table and notes</button></p>`, sheets: { cap: ['Capital requirements by phase', capTbl + `<ul class="notes">${D.capNotes.filter(x => x.startsWith('*') || x.startsWith('until')).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`] } });
+    <div class="panel xl" data-b="1"><h4>Capital requirement projections <small>total ${compact(capSum)}</small></h4>${capTbl}</div>
+    <div class="panel xl" data-b="2"><h4>What each phase pays for</h4>${legend(cap.map(c => ({ name: c[0], color: c[2] })))}<div class="cps">${capPies}</div></div>
+    <p class="fine" data-b="3">The largest line is the Tolpods themselves: the first cluster at $50,000 per Tolpods, 10% cheaper with every new phase as orders grow. Inventory averages $2,000 per Tolpods. <button class="lnk" data-sheet="cap">Notes</button></p>`, sheets: { cap: ['Capital requirement notes', `<ul class="notes">${D.capNotes.filter(x => x.startsWith('*') || x.startsWith('until')).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`] } });
 
   /* ---- Funding: flywheel + sources */
   const src2 = [['MVP', 'Founders, seed investors and debt capital'], ['Phase I', 'Founders and debt capital'], ['Phase II', 'Venture capital firm and debt capital'], ['Phase III', 'Debt capital'], ['Phase IV', 'Profits from operation']];
