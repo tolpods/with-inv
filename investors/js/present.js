@@ -295,8 +295,7 @@ function slidesFor({ me, settings, productHref, onHelp, onTrack, ...opts }) {
       <aside class="panel xl stn"><h4>What the stars mean</h4>
         <ol class="stnotes">${cap.slice().sort((a, b) => a[3] - b[3]).map(c => { const t = capNote[c[3] === 7 ? 6 : c[3] - 1].replace(/^[^:]+: /, ''); return `<li>${stars(c[3])}<span><b>${esc(c[0])}</b>${esc(t.charAt(0).toUpperCase() + t.slice(1))}</span></li>`; }).join('')}</ol></aside>
     </div>
-    <div class="panel xl" data-b="2"><h4>What each phase pays for</h4>${legend(cap.map(c => ({ name: c[0], color: c[2] })))}<div class="cps">${capPies}</div></div>
-    <p class="fine fine-xl" data-b="3">The largest line is the Tolpods themselves: the first cluster at $50,000 per Tolpods, 10% cheaper with every new phase as orders grow. Inventory averages $2,000 per Tolpods.</p>` });
+    <div class="panel xl" data-b="2"><h4>What each phase pays for</h4>${legend(cap.map(c => ({ name: c[0], color: c[2] })))}<div class="pie-row"><div class="cps">${capPies}</div><p class="pie-note">The largest line is the Tolpods themselves: the first cluster at $50,000 per Tolpods, 10% cheaper with every new phase as orders grow. Inventory averages $2,000 per Tolpods.</p></div></div>` });
 
   /* ---- Funding: flywheel + sources */
   const src2 = [['MVP', 'Founders, seed investors and debt capital'], ['Phase I', 'Founders and debt capital'], ['Phase II', 'Venture capital firm and debt capital'], ['Phase III', 'Debt capital'], ['Phase IV', 'Profits from operation']];
@@ -354,7 +353,7 @@ function slidesFor({ me, settings, productHref, onHelp, onTrack, ...opts }) {
     init(el) {
       const box = $('#choose', el), conf = $('#ch-confirm', el), done = $('#ch-done', el);
       const showDone = ch => { conf.hidden = true; $$('.ch', box).forEach(b => b.classList.toggle('on', b.dataset.k === ch.key)); done.hidden = false;
-        done.innerHTML = `<div class="ch-msg"><b>${esc(ch.kind === 'opt' ? `${ch.label}: ${money(ch.amount)} for ${ch.pct}%` : ch.label)}</b><p>${esc(MSG[ch.kind])}</p><div class="ch-links"><button type="button" class="btn gold" data-portal>Go to my investor portal →</button><button type="button" class="link" data-change>Change my selection</button></div></div>`; };
+        done.innerHTML = `<div class="ch-msg"><b>${esc(ch.kind === 'opt' ? `${ch.label}: ${money(ch.amount)} for ${ch.pct}%` : ch.label)}</b><p>${esc(MSG[ch.kind])}</p><div class="ch-links"><button type="button" class="btn gold" data-portal>Go to my investor portal →</button></div></div>`; };
       if (me.choice) showDone(CH.find(c => c.key === me.choice.key) || CH[0]);
       box.addEventListener('click', async e => {
         if (e.target.closest('[data-portal]')) { opts.onPortal?.(); return; }

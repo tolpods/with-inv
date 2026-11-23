@@ -317,3 +317,8 @@ h2 .hl{padding:.02em .3em;font-family:inherit}
 .cap-grid .stbl thead th{font-size:.9em;letter-spacing:.04em} .cap-grid .mo{font-size:1.05em}
 .cap-grid .stbl .divs td,.cap-grid .stbl .divs th{font-size:1.25em}
 .cap-grid .stbl thead th{font-size:1.02em} .cap-grid .mo{font-size:1.1em}
+/* v24.2 */
+.chain .hl{color:#1d1707!important}
+.pie-row{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(240px,1fr);gap:clamp(18px,3vw,44px);align-items:center;margin-top:8px} @media(max-width:900px){.pie-row{grid-template-columns:1fr}}
+.pie-row .cps{margin:0;max-width:none}
+.pie-note{margin:0;font-size:clamp(17px,1.7vw,22px);line-height:1.55;font-weight:500;color:var(--fg);padding-left:clamp(14px,2vw,26px);border-left:3px solid #c08a1a}
