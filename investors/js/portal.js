@@ -21,7 +21,7 @@ const STEPS = [['details', 'Your details'], ['nda', 'NDA'], ['deck', 'Presentati
 function shell(body, { step, tools = true } = {}) {
   const idx = STEPS.findIndex(s => s[0] === step);
   const stepBtns = me ? STEPS.map(([k, l], i) => {
-    const done = (k === 'details' && me.nda) || (k === 'nda' && me.nda) || (k === 'invest' && me.safe), lock = (k !== 'details' && !D_ok()) || ((k === 'deck' || k === 'invest') && !me.nda);
+    const done = (k === 'details' && me.nda) || (k === 'nda' && me.nda) || (k === 'invest' && (me.safe || me.choice)), lock = (k !== 'details' && !D_ok()) || ((k === 'deck' || k === 'invest') && !me.nda);
     return h('button', { class: 'stp' + (k === step ? ' on' : '') + (done ? ' done' : ''), disabled: lock, onclick: () => go(k), 'aria-current': k === step ? 'step' : null }, h('i', {}, done ? '✓' : String(i + 1)), h('span', {}, l));
   }) : [];
   const top = h('header', { class: 'top' }, h('div', { class: 'top-in' }, brand('Investors'), me ? h('nav', { class: 'steps', 'aria-label': 'Progress' }, stepBtns) : h('span', { class: 'sp' }), me ? h('span', { class: 'sp' }) : null,
@@ -183,7 +183,7 @@ function deckView(anchor) {
   deckCtl = renderPresentation(root, {
     me, settings: API.publicSettings(), start: anchor,
     productHref: '../explorer.html?return=' + encodeURIComponent('investors/index.html#deck/product'),
-    onInvest: () => go('invest'), onHelp: () => supportModal({ kind: 'help', email: me.email, name: me.profile.signerName || me.name }),
+    onChoose: async c => { const r = API.recordChoice(c); if (r.ok) me = API.investorMe(); return r; }, onHelp: () => supportModal({ kind: 'help', email: me.email, name: me.profile.signerName || me.name }),
     onExit: () => saveExit(), onDoc: me.nda ? () => download(me.nda.id + '.pdf', me.nda.pdf) : null,
     onTrack: k => { if (k.startsWith('view:')) API.markViewed(k.slice(5)); else API.click(k); }
   });
@@ -253,12 +253,13 @@ function render() {
   if (!me) { loginView(1); return; }
   const [view, anchor] = location.hash.slice(1).split('/');
   const ready = D_ok(), signed = !!me.nda;
-  let v = view || (me.safe ? 'invest' : signed ? 'deck' : ready ? 'nda' : 'details');
+  let v = view || (signed ? 'deck' : ready ? 'nda' : 'details');
   if (!ready && v !== 'details') v = 'details';
   if ((v === 'deck' || v === 'invest') && !signed) v = ready ? 'nda' : 'details';
   if (v === 'nda' && !ready) v = 'details';
   if (!['details', 'nda', 'deck', 'invest'].includes(v)) v = 'details';
-  if (v === 'details') detailsView(); else if (v === 'nda') ndaView(); else if (v === 'deck') deckView(anchor); else investView();
+  if (v === 'invest') { v = 'deck'; return void (location.hash = '#deck/boarding'); }
+  if (v === 'details') detailsView(); else if (v === 'nda') ndaView(); else deckView(anchor);
   if (v !== 'deck') { deckCtl?.destroy(); deckCtl = null; if (view) window.scrollTo({ top: 0 }); }
   document.title = 'Tolpods Investors';
 }

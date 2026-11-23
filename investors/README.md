@@ -60,3 +60,6 @@ A full-screen, slide-by-slide flow (17 slides) instead of a scrolling website. K
 - Dashboard has an **NDA signed?** column (Yes/No).
 - Tour video: drop a 3-4 min `tolpods-tour.mp4` into `/assets/` (the product slide plays it).
 - Appendix slides (occupancy simulator, cash flow chart, value chart and stake cards) are reachable from links and the All slides grid, not the main flow.
+
+## v24 (Nov 23 edits)
+Slide-by-slide text/layout changes; Tolpods logo in the top bar of every slide; highlighted $101,873 / $87,274 and "N clusters" pills; capital slide with colored-star notes and MVP / Phase III / IPO pies; final slide is now an option picker (Options 1-4, Other, Contact me next stage, Not interested). Selections are saved via `API.recordChoice`, emailed to the investor and admins, and shown in the admin dashboard (CSV includes selection + note). No SAFE is signed online.

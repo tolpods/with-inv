@@ -6,7 +6,7 @@ import { h, $, esc, toast, fmtDate, money, download } from './util.js';
 
 const app = $('#app'); let me = null, tab = 'investors', q = '', filter = 'all', openEmail = null;
 mountMailbox();
-const CHIP = { invited: 'gray', revoked: 'bad', signedin: 'gray', details: 'warn', nda: 'good', reviewing: 'good', safe: 'gold' };
+const CHIP = { invited: 'gray', revoked: 'bad', signedin: 'gray', details: 'warn', nda: 'good', reviewing: 'good', chosen: 'gold', safe: 'gold' };
 const SAFE_ST = { 'awaiting-countersign': ['Awaiting countersign', 'warn'], countersigned: ['Countersigned', 'good'], funded: ['Funded', 'gold'] };
 
 function top() {
@@ -19,30 +19,30 @@ function gate() {
 }
 const name = r => r.me?.profile?.legalName || r.invite.name;
 function csv(rows) {
-  const cols = ['Name', 'Email', 'Invite code', 'Status', 'Type', 'Phone', 'Address', 'Address check', 'NDA signed', 'SAFE signed', 'Stage', 'SAFE version', 'Amount', 'Valuation cap', 'SAFE status', 'Sections viewed'];
+  const cols = ['Name', 'Email', 'Invite code', 'Status', 'Type', 'Phone', 'Address', 'Address check', 'NDA signed', 'SAFE signed', 'Stage', 'SAFE version', 'Amount', 'Valuation cap', 'SAFE status', 'Sections viewed', 'Selection', 'Selection note'];
   const esc = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
   const lines = rows.map(r => { const p = r.me?.profile || {}, s = r.me?.safe; return [name(r), r.invite.email, r.invite.code, API.STATUS[r.status], p.type || '', p.phone || '', r.me ? addrLine(p) : '', p.addrStatus || '', r.me?.nda ? new Date(r.me.nda.at).toISOString() : '', s ? new Date(s.at).toISOString() : '', s?.stage || '', s ? SAFE_VERSIONS[s.version].label : '', s?.amount || '', s?.version === 'cap' ? s.terms.cap : '', s?.status || '', r.viewedCount + '/' + API.SECTIONS.length].map(esc).join(','); });
   return 'data:text/csv;charset=utf-8,' + encodeURIComponent([cols.map(esc).join(','), ...lines].join('\n'));
 }
 
 function investorsView(d) {
-  const rows = d.rows, count = s => rows.filter(r => s(r)).length, order = ['invited', 'signedin', 'details', 'nda', 'reviewing', 'safe'];
+  const rows = d.rows, count = s => rows.filter(r => s(r)).length, order = ['invited', 'signedin', 'details', 'nda', 'reviewing', 'chosen', 'safe', r.me?.choice?.label || '', r.me?.choice?.feedback || ''];
   const atLeast = k => rows.filter(r => r.status !== 'revoked' && order.indexOf(r.status) >= order.indexOf(k)).length;
-  const kpis = [['Invited', rows.filter(r => r.status !== 'revoked').length, 'active invitations'], ['NDA signed', atLeast('nda'), 'investors past the NDA'], ['SAFEs signed', atLeast('safe'), 'investors ready to invest'], ['Committed', money(d.committed), 'total SAFE amount'], ['Open questions', d.tickets.filter(t => t.status === 'open').length, 'support messages']];
-  const funnel = [['Invited', 'invited'], ['Signed in', 'signedin'], ['Details', 'details'], ['NDA signed', 'nda'], ['Reviewing', 'reviewing'], ['SAFE signed', 'safe']];
+  const kpis = [['Invited', rows.filter(r => r.status !== 'revoked').length, 'active invitations'], ['NDA signed', atLeast('nda'), 'investors past the NDA'], ['Selections made', atLeast('chosen'), 'investors who chose an option'], ['Committed', money(d.committed), 'total SAFE amount'], ['Open questions', d.tickets.filter(t => t.status === 'open').length, 'support messages']];
+  const funnel = [['Invited', 'invited'], ['Signed in', 'signedin'], ['Details', 'details'], ['NDA signed', 'nda'], ['Reviewing', 'reviewing'], ['Selection made', 'chosen']];
   const total = Math.max(1, atLeast('invited'));
   let list = rows.filter(r => (filter === 'all' || r.status === filter) && (!q || (name(r) + r.invite.email + r.invite.code).toLowerCase().includes(q.toLowerCase())));
   const tbody = list.map(r => { const s = r.me?.safe, n = r.me?.nda; return h('tr', { class: 'click', onclick: () => { openEmail = r.invite.email; drawer(); } },
     h('td', {}, h('b', {}, name(r)), h('br'), h('span', { class: 'fine' }, r.invite.email + ' · ' + r.invite.code)), h('td', {}, h('span', { class: 'chip ' + CHIP[r.status] }, API.STATUS[r.status])), h('td', {}, r.me?.profile?.type ? r.me.profile.type[0].toUpperCase() + r.me.profile.type.slice(1) : '-'),
-    h('td', {}, n ? h('span', {}, h('span', { class: 'chip good' }, 'Yes'), ' ', fmtDate(n.at), h('br'), h('button', { class: 'lnk', title: 'Download the signed NDA (PDF)', onclick: e => { e.stopPropagation(); download(n.id + '.pdf', n.pdf); } }, '⬇ PDF')) : h('span', { class: 'chip gray' }, 'No')), h('td', {}, s ? h('span', {}, h('b', {}, money(s.amount)), h('br'), h('span', { class: 'fine' }, SAFE_VERSIONS[s.version].label)) : h('span', { class: 'fine' }, '-')),
-    h('td', {}, s ? h('span', { class: 'chip ' + SAFE_ST[s.status][1] }, SAFE_ST[s.status][0]) : '-'), h('td', {}, n ? r.viewedCount + '/' + API.SECTIONS.length : '-'), h('td', {}, r.me?.lastLogin ? fmtDate(r.me.lastLogin) : '-')); });
+    h('td', {}, n ? h('span', {}, h('span', { class: 'chip good' }, 'Yes'), ' ', fmtDate(n.at), h('br'), h('button', { class: 'lnk', title: 'Download the signed NDA (PDF)', onclick: e => { e.stopPropagation(); download(n.id + '.pdf', n.pdf); } }, '⬇ PDF')) : h('span', { class: 'chip gray' }, 'No')), h('td', {}, r.me?.choice ? h('span', {}, h('b', {}, r.me.choice.label), r.me.choice.feedback ? h('br') : null, r.me.choice.feedback ? h('span', { class: 'fine' }, '“' + r.me.choice.feedback.slice(0, 80) + '”') : null) : s ? h('span', {}, h('b', {}, money(s.amount)), h('br'), h('span', { class: 'fine' }, SAFE_VERSIONS[s.version].label)) : h('span', { class: 'fine' }, '-')),
+    h('td', {}, r.me?.choice ? fmtDate(r.me.choice.at) : s ? h('span', { class: 'chip ' + SAFE_ST[s.status][1] }, SAFE_ST[s.status][0]) : '-'), h('td', {}, n ? r.viewedCount + '/' + API.SECTIONS.length : '-'), h('td', {}, r.me?.lastLogin ? fmtDate(r.me.lastLogin) : '-')); });
   const sel = h('select', { class: 'inp', style: 'max-width:200px;padding:9px 14px', onchange: e => { filter = e.target.value; render(); } }, h('option', { value: 'all' }, 'All statuses'), ...Object.entries(API.STATUS).map(([k, v]) => h('option', { value: k, selected: filter === k }, v)));
   const search = h('input', { class: 'inp', placeholder: 'Search name, email or code', value: q, oninput: e => { q = e.target.value; const pos = e.target.selectionStart; render(); const n = $('.bar-tools input'); n.focus(); n.setSelectionRange(pos, pos); } });
   return h('div', { class: 'adm' }, h('div', { class: 'eyebrow' }, 'Investor pipeline'), h('h1', {}, 'Investor ', h('span', { class: 'serif' }, 'dashboard')),
     h('div', { class: 'kpi-row' }, kpis.map(([a, b, c]) => h('div', { class: 'kpi' }, h('i', {}, a), h('b', {}, b), h('span', {}, c)))),
     h('div', { class: 'funnel' }, funnel.map(([l, k]) => { const n = atLeast(k); return h('div', { class: 'fstep' }, h('b', {}, n), h('span', {}, l), h('i', { style: 'width:' + (n / total * 100) + '%' })); })),
     h('div', { class: 'bar-tools' }, search, sel, h('span', { style: 'flex:1' }), h('button', { class: 'btn ghost sm', onclick: render }, '↻ Refresh'), h('button', { class: 'btn sm', onclick: () => download('tolpods-investors-' + new Date().toISOString().slice(0, 10) + '.csv', csv(list)) }, '⬇ Export CSV')),
-    h('div', { class: 'tw' }, list.length ? h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Investor', 'Status', 'Type', 'NDA signed?', 'SAFE', 'SAFE status', 'Deck viewed', 'Last sign-in'].map(x => h('th', {}, x)))), h('tbody', {}, tbody)) : h('div', { class: 'empty' }, rows.length ? 'No investors match your filters.' : 'No investors yet. Create invitations from the Invites page.')));
+    h('div', { class: 'tw' }, list.length ? h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Investor', 'Status', 'Type', 'NDA signed?', 'Investment selection', 'Selected on / SAFE status', 'Deck viewed', 'Last sign-in'].map(x => h('th', {}, x)))), h('tbody', {}, tbody)) : h('div', { class: 'empty' }, rows.length ? 'No investors match your filters.' : 'No investors yet. Create invitations from the Invites page.')));
 }
 
 function drawer() {
@@ -58,6 +58,7 @@ function drawer() {
     h('h4', {}, 'Documents'),
     h('div', { class: 'acts' }, m?.nda ? h('button', { class: 'btn ghost sm', onclick: () => download(m.nda.id + '.pdf', m.nda.pdf) }, '⬇ Signed NDA (PDF) · ' + fmtDate(m.nda.at)) : h('span', { class: 'fine' }, 'NDA not signed yet'), m?.safe ? h('button', { class: 'btn ghost sm', onclick: () => download(m.safe.id + '.pdf', m.safe.pdf) }, '⬇ SAFE · ' + money(m.safe.amount)) : null),
     m?.nda ? h('p', { class: 'fine', style: 'margin-top:8px' }, 'NDA hash: ', h('span', { class: 'mono' }, m.nda.hash.slice(0, 20) + '…')) : null,
+    m?.choice ? [h('h4', {}, 'Investment selection'), kv([['Selection', h('b', {}, m.choice.label)], ['Note', m.choice.feedback || '-'], ['Selected', fmtDate(m.choice.at)]])] : null,
     m?.safe ? [h('h4', {}, 'SAFE'), kv([['Amount', h('b', {}, money(m.safe.amount))], ['Stage', m.safe.stage], ['Version', SAFE_VERSIONS[m.safe.version].label], m.safe.version === 'cap' ? ['Valuation cap', money(m.safe.terms.cap) + ' (≈' + m.safe.terms.pct + '%)'] : null, ['Signed', fmtDate(m.safe.at)], ['Status', h('select', { class: 'inp', style: 'padding:6px 10px', onchange: e => { API.setSafeStatus(m.email, e.target.value); toast('SAFE status updated'); render(); drawer(); } }, ...Object.entries(SAFE_ST).map(([k, v]) => h('option', { value: k, selected: m.safe.status === k }, v[0])))]])] : null,
     m ? [h('h4', {}, `Presentation progress (${r.viewedCount}/${API.SECTIONS.length})`), h('div', { class: 'secs' }, API.SECTIONS.map(s => h('span', { class: m.viewed?.[s] ? 'on' : '' }, s))), Object.keys(m.clicks || {}).length ? h('p', { class: 'fine', style: 'margin-top:8px' }, 'Clicks: ' + Object.entries(m.clicks).map(([k, v]) => `${k} ×${v}`).join(', ')) : null] : null,
     tick.length ? [h('h4', {}, 'Questions'), ...tick.map(t => h('div', { class: 'tick' }, h('div', { class: 'meta' }, fmtDate(t.createdAt) + ' · ' + t.status), t.message))] : null,

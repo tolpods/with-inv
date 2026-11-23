@@ -176,6 +176,18 @@ export function emailNdaCopy() {
   const me = needInvestor(); if (!me.nda) return fail('No signed NDA yet.');
   sendMail({ to: me.email, kind: 'nda', attachments: [{ name: me.nda.id + '.pdf', dataUrl: me.nda.pdf }], subject: 'Your signed Tolpods NDA (copy attached)', text: `Hello ${me.name},\n\nAs requested, here is another copy of your signed Tolpods Non-Disclosure Agreement.\n\n- Tolpods` }); return ok();
 }
+/* The final slide: the investor picks an option (or other / next stage / not interested). Nothing is signed online; we record it and follow up. */
+const CHOICE_MSG = { opt: 'Thank you for investing. Someone from Tolpods will reach out to you via email with the SAFE contract.', other: 'Thank you for your interest. Someone from Tolpods will reach out to you soon.', next: 'Thank you for your interest. We will reach out to you in our next investment stage.', no: 'Thank you for your time. We will remove you from our list of potential investors.' };
+export function recordChoice({ key, kind, label, amount, pct, feedback }) {
+  const me = needInvestor(); if (!me.nda) return fail('Please sign the NDA first.');
+  if (!['opt', 'other', 'next', 'no'].includes(kind)) return fail('Unknown selection.');
+  const desc = kind === 'opt' ? `${label}: ${money(amount)} for ${pct}%` : label, fb = String(feedback || '').slice(0, 800);
+  me.choice = { key, kind, label: desc, amount: kind === 'opt' ? amount : 0, pct: kind === 'opt' ? pct : 0, feedback: fb, at: Date.now() };
+  ev(me, 'choice', desc); S.save();
+  sendMail({ to: me.email, kind: 'choice', subject: 'We received your selection: Tolpods', text: `Hello ${me.name},\n\n${CHOICE_MSG[kind]}\n\nYour selection: ${desc}${fb ? '\nYour note: ' + fb : ''}\n\n- Tolpods` });
+  for (const a of adminEmails()) sendMail({ to: a, kind: 'admin-choice', subject: `Investor selection: ${me.profile.legalName || me.name} - ${desc}`, text: `${me.profile.legalName || me.name} (${me.email}) selected: ${desc}\n${fb ? 'Note: ' + fb + '\n' : ''}NDA signed: ${me.nda ? 'yes' : 'no'}` });
+  audit(me.email, 'investor.choice', desc); return ok({ choice: me.choice });
+}
 export function saveDraft(draft) { try { const me = needInvestor(); me.draft = { ...(me.draft || {}), ...draft }; S.save(); } catch { } }
 
 /* ---------- investor: presentation tracking ---------- */
@@ -221,18 +233,18 @@ export function replyTicket(id, text) {
 export function setTicketStatus(id, status) { const me = needAdmin(), t = db().tickets.find(x => x.id === id); if (t) { t.status = status; S.save(); audit(me.email, 'ticket.' + status, id); } return ok(); }
 
 /* ---------- dashboard ---------- */
-export const STATUS = { invited: 'Invited', revoked: 'Revoked', signedin: 'Signed in', details: 'Details saved', nda: 'NDA signed', reviewing: 'Reviewing deck', safe: 'SAFE signed' };
+export const STATUS = { invited: 'Invited', revoked: 'Revoked', signedin: 'Signed in', details: 'Details saved', nda: 'NDA signed', reviewing: 'Reviewing deck', chosen: 'Selection made', safe: 'SAFE signed' };
 export const SECTIONS = ['overview', 'market', 'product', 'cashflow', 'roi', 'capital', 'options', 'questions'];
 export function statusOf(inv, me) {
   if (inv.status === 'revoked') return 'revoked';
   if (!me) return 'invited';
-  if (me.safe) return 'safe'; if (me.nda) return Object.keys(me.viewed || {}).length ? 'reviewing' : 'nda';
+  if (me.safe) return 'safe'; if (me.choice) return 'chosen'; if (me.nda) return Object.keys(me.viewed || {}).length ? 'reviewing' : 'nda';
   return me.profile?.legalName ? 'details' : 'signedin';
 }
 export function dashboard() {
   needAdmin(); const d = db();
   const rows = d.invites.filter(i => i.status !== 'pool').map(inv => { const me = d.investors[inv.email]; const st = statusOf(inv, me); return { invite: inv, me, status: st, viewedCount: me ? Object.keys(me.viewed || {}).length : 0 }; });
-  const committed = rows.reduce((s, r) => s + (r.me?.safe?.amount || 0), 0);
+  const committed = rows.reduce((s, r) => s + (r.me?.safe?.amount || r.me?.choice?.amount || 0), 0);
   return { rows, committed, tickets: d.tickets, audit: d.audit, outbox: d.outbox.length };
 }
 export function setSafeStatus(email, status) { const me = needAdmin(), i = db().investors[email]; if (i?.safe) { i.safe.status = status; ev(i, 'safe-status', status); S.save(); audit(me.email, 'safe.status', email + ' ' + status); } return ok(); }
