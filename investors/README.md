@@ -63,3 +63,6 @@ A full-screen, slide-by-slide flow (17 slides) instead of a scrolling website. K
 
 ## v24 (Nov 23 edits)
 Slide-by-slide text/layout changes; Tolpods logo in the top bar of every slide; highlighted $101,873 / $87,274 and "N clusters" pills; capital slide with colored-star notes and MVP / Phase III / IPO pies; final slide is now an option picker (Options 1-4, Other, Contact me next stage, Not interested). Selections are saved via `API.recordChoice`, emailed to the investor and admins, and shown in the admin dashboard (CSV includes selection + note). No SAFE is signed online.
+
+### v24.1
+New cover image (`assets/cover-airport.jpg`), boxed slide 7 with a clean $7.08 tile, plain gold "N clusters" table labels, solid-badge number highlight ($101,873 / $87,274), reorganised slide 15 calculator, star notes beside the capital table (slide 16), and a post-selection investor portal page (`#invest`) reached automatically after confirming a choice on slide 20.

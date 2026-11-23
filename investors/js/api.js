@@ -177,7 +177,7 @@ export function emailNdaCopy() {
   sendMail({ to: me.email, kind: 'nda', attachments: [{ name: me.nda.id + '.pdf', dataUrl: me.nda.pdf }], subject: 'Your signed Tolpods NDA (copy attached)', text: `Hello ${me.name},\n\nAs requested, here is another copy of your signed Tolpods Non-Disclosure Agreement.\n\n- Tolpods` }); return ok();
 }
 /* The final slide: the investor picks an option (or other / next stage / not interested). Nothing is signed online; we record it and follow up. */
-const CHOICE_MSG = { opt: 'Thank you for investing. Someone from Tolpods will reach out to you via email with the SAFE contract.', other: 'Thank you for your interest. Someone from Tolpods will reach out to you soon.', next: 'Thank you for your interest. We will reach out to you in our next investment stage.', no: 'Thank you for your time. We will remove you from our list of potential investors.' };
+export const CHOICE_MSG = { opt: 'Thank you for investing. Someone from Tolpods will reach out to you via email with the SAFE contract.', other: 'Thank you for your interest. Someone from Tolpods will reach out to you soon.', next: 'Thank you for your interest. We will reach out to you in our next investment stage.', no: 'Thank you for your time. We will remove you from our list of potential investors.' };
 export function recordChoice({ key, kind, label, amount, pct, feedback }) {
   const me = needInvestor(); if (!me.nda) return fail('Please sign the NDA first.');
   if (!['opt', 'other', 'next', 'no'].includes(kind)) return fail('Unknown selection.');

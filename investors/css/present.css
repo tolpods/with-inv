@@ -225,7 +225,7 @@ body.pres-on .dev-fab{bottom:76px;right:12px}
 /* ===== v23.1 ===== */
 /* slide 1 fills the space */
 .slide.cover .sl-in{max-width:1500px;padding-top:clamp(30px,6vh,80px)}
-.slide.cover::before{content:"";position:absolute;inset:0;background:url(../../assets/hero.jpg) right center/cover no-repeat;opacity:.55;-webkit-mask-image:linear-gradient(90deg,transparent 18%,#000 75%);mask-image:linear-gradient(90deg,transparent 18%,#000 75%);pointer-events:none}
+.slide.cover::before{content:"";position:absolute;inset:0;background:url(../../assets/cover-airport.jpg) right center/cover no-repeat;opacity:.5;-webkit-mask-image:linear-gradient(90deg,transparent 18%,#000 75%);mask-image:linear-gradient(90deg,transparent 18%,#000 75%);pointer-events:none}
 .slide.cover::after{content:"";position:absolute;inset:0;background:radial-gradient(900px 600px at 20% 60%,#0f131500,#0f1315cc 85%);pointer-events:none}
 .slide.cover .sl-in{z-index:1}
 .slide.cover .eyebrow{font-size:clamp(16px,2vw,26px)!important}
@@ -248,10 +248,6 @@ body.pres-on .dev-fab{bottom:76px;right:12px}
 .p-brand{align-items:center}
 .p-logo{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:19px;letter-spacing:-.03em;color:inherit} .p-logo b{font-weight:700}
 .p-logo svg{height:30px;width:auto;display:block;flex:none}
-.hl{font-weight:800;color:#8a5a00;background:linear-gradient(transparent 55%,#f2d98c99 55%);padding:0 3px;border-radius:3px}
-.th-night .hl,.slide.dark .hl{color:#f2d98c;background:linear-gradient(transparent 55%,#e0b55a44 55%)}
-.stbl thead small.cl{display:inline-block;margin-top:3px;font-weight:800;font-size:1.05em;color:#6b4300;background:#f2d98c;border-radius:999px;padding:1px 9px}
-.th-night .stbl thead small.cl{color:#1b1608;background:#e0b55a}
 .hint-b{font-size:clamp(18px,2vw,26px);font-weight:800;color:var(--gold);margin:6px 0 12px}
 .mil{letter-spacing:.14em;margin-left:.18em}
 .goal-l{font-size:clamp(22px,2.6vw,34px);font-weight:700}
@@ -284,3 +280,40 @@ ul.foot{margin:10px 0 0;padding-left:18px} ul.foot li{font-size:clamp(14px,1.3vw
 .ch-act{display:flex;gap:14px;align-items:center;margin-top:12px;flex-wrap:wrap}
 .ch-msg p{font-size:clamp(16px,1.7vw,21px);line-height:1.5;margin:0 0 10px;color:#f2efe4}
 .ch-msg .link{color:var(--gold);text-decoration:underline;background:none;border:0;cursor:pointer;font:inherit;font-size:15px;padding:0}
+
+/* ===== v24.1 ===== */
+/* number highlight: solid badge so the eye lands on it */
+.hl{display:inline-block;font-weight:800;line-height:1.15;padding:.08em .42em;border-radius:.4em;color:#1d1707;background:linear-gradient(180deg,#f4d98a,#e0b55a);box-shadow:0 1px 0 #fff6 inset,0 2px 10px #e0b55a55;white-space:nowrap;font-style:normal;letter-spacing:0}
+.chain .hl,.sim-k .hl{font-size:inherit}
+h2 .hl{padding:.02em .3em;font-family:inherit}
+/* cluster labels in table headers */
+.stbl thead th{vertical-align:bottom;font-size:1em}
+.stbl thead small.cl{display:block;margin-top:6px;padding-top:5px;border-top:2px solid #e0b55a;font:700 13.5px var(--sans);letter-spacing:0;text-transform:none;color:#f2d98c;white-space:nowrap;text-align:right}
+.th-paper .stbl thead small.cl{color:#7a5000;border-top-color:#c08a1a}
+/* slide 7 */
+.ap-box{padding:clamp(20px,3vw,38px)!important}
+.ap-grid{display:grid;grid-template-columns:auto 1fr;gap:clamp(20px,4vw,56px);align-items:center} @media(max-width:860px){.ap-grid{grid-template-columns:1fr;justify-items:center}}
+.ap-side{display:flex;flex-direction:column;gap:18px;width:100%} .ap-side h4{margin:0;font:600 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#cfccbf}
+.ap-side .legend,.ap-side li,.ap-side .dl-row{font-size:clamp(16px,1.6vw,20px)}
+.ap-stat{display:flex;align-items:center;gap:clamp(14px,2vw,24px);border:1.5px solid #e0b55a88;background:linear-gradient(100deg,#e0b55a22,#e0b55a0a);border-radius:20px;padding:clamp(14px,2vw,22px) clamp(16px,2.4vw,28px)}
+.ap-stat b{font-size:clamp(46px,6vw,76px);line-height:1;letter-spacing:-.05em;color:#f2d98c;font-weight:800}
+.ap-stat strong{display:block;font-size:clamp(17px,1.7vw,22px);color:#f2efe4;margin-bottom:3px} .ap-stat span{display:block;font-size:clamp(14px,1.3vw,17px);line-height:1.45;color:#cfccbf}
+.ap-note{margin:clamp(16px,2vw,26px) 0 0;padding-top:clamp(14px,1.8vw,22px);border-top:1px solid #ffffff22;font-size:clamp(16px,1.6vw,20px);line-height:1.55;color:#e4e1d6}
+/* slide 15 calculator */
+.sim.xl .sim-ctl{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #d9d3c3} .sim.xl .sim-ctl label{margin:0;font-size:12px} .sim.xl select.inp{width:auto;min-width:260px;margin:0;font-weight:600}
+.sim.xl .sim-grid{gap:14px;margin-bottom:18px} .sim.xl .sim-k{display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-height:92px;padding:16px 18px;border-radius:16px} .sim.xl .sim-k i{margin:0;font-size:11.5px} .sim.xl .sim-k b{font-size:clamp(24px,2.5vw,34px);line-height:1.1}
+.sim.xl .sim-k.key{border-color:#c08a1a;background:linear-gradient(180deg,#f7e6b4,#efd48a)} .sim.xl .sim-k.key i{color:#6b4a00} .sim.xl .sim-k.key b{color:#2a1d00}
+.sim.xl #stk-chart{border-top:1px solid #d9d3c3;padding-top:14px}
+/* slide 16 */
+.slide.wide .sl-in{max-width:1640px}
+.cap-grid{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(280px,1fr);gap:18px;align-items:stretch} @media(max-width:1100px){.cap-grid{grid-template-columns:1fr}}
+.cap-grid .panel{margin:0}
+.stn h4{margin-top:0}
+.stnotes{gap:14px} .stnotes li{font-size:clamp(14.5px,1.25vw,17px);line-height:1.45} .stnotes b{display:block;font-size:1.05em;margin-bottom:2px} .stnotes .stars{font-size:1.5em;min-width:3.2em}
+.slide.wide .cps{grid-template-columns:repeat(3,1fr);max-width:900px;margin:10px auto 0} .slide.wide .cp b{font-size:14px}
+.ch-links{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:6px}
+.cap-grid{grid-template-columns:minmax(0,2.3fr) minmax(250px,1fr)}
+.cap-grid .stbl{font-size:clamp(13px,1.02vw,15.5px)} .cap-grid .stbl th,.cap-grid .stbl td{padding-left:7px;padding-right:7px;white-space:nowrap} .cap-grid .stbl th.l{white-space:normal;min-width:150px}
+.cap-grid .stbl thead th{font-size:.9em;letter-spacing:.04em} .cap-grid .mo{font-size:1.05em}
+.cap-grid .stbl .divs td,.cap-grid .stbl .divs th{font-size:1.25em}
+.cap-grid .stbl thead th{font-size:1.02em} .cap-grid .mo{font-size:1.1em}

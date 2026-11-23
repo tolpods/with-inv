@@ -183,10 +183,26 @@ function deckView(anchor) {
   deckCtl = renderPresentation(root, {
     me, settings: API.publicSettings(), start: anchor,
     productHref: '../explorer.html?return=' + encodeURIComponent('investors/index.html#deck/product'),
-    onChoose: async c => { const r = API.recordChoice(c); if (r.ok) me = API.investorMe(); return r; }, onHelp: () => supportModal({ kind: 'help', email: me.email, name: me.profile.signerName || me.name }),
+    onPortal: () => go('invest'), onChoose: async c => { const r = API.recordChoice(c); if (r.ok) me = API.investorMe(); return r; }, onHelp: () => supportModal({ kind: 'help', email: me.email, name: me.profile.signerName || me.name }),
     onExit: () => saveExit(), onDoc: me.nda ? () => download(me.nda.id + '.pdf', me.nda.pdf) : null,
     onTrack: k => { if (k.startsWith('view:')) API.markViewed(k.slice(5)); else API.click(k); }
   });
+}
+
+/* ---------------- investor portal (after the selection) ---------------- */
+function portalView() {
+  if (me.safe) return doneView();
+  const c = me.choice, who = me.profile.signerName || me.profile.legalName || me.name;
+  const kind = c.kind;
+  shell(h('div', { class: 'wrap' }, h('div', { class: 'card', style: 'text-align:center;padding:48px 28px' },
+    h('div', { style: 'font-size:46px' }, '✓'), h('h1', {}, 'Your investor ', h('span', { class: 'serif' }, 'portal')),
+    h('p', { style: 'font-size:18px' }, 'Hello ', h('b', {}, who), '. ', API.CHOICE_MSG[kind]),
+    h('div', { class: 'recap' }, h('div', {}, h('i', {}, 'Your selection'), h('b', {}, c.label)), kind === 'opt' ? h('div', {}, h('i', {}, 'Amount'), h('b', {}, money(c.amount))) : null, kind === 'opt' ? h('div', {}, h('i', {}, 'Ownership'), h('b', {}, c.pct + '%')) : null, h('div', {}, h('i', {}, 'Recorded'), h('b', {}, fmtDate(c.at))), c.feedback ? h('div', {}, h('i', {}, 'Your note'), h('b', {}, c.feedback)) : null),
+    h('p', { class: 'fine' }, 'A confirmation was sent to ', h('b', {}, me.email), '. Nothing is signed online; any SAFE contract is sent separately.'),
+    h('h3', { style: 'margin-top:32px' }, 'What happens next'), h('ol', { class: 'next' }, kind === 'opt' ? [h('li', {}, 'Someone from Tolpods emails you the SAFE contract.'), h('li', {}, 'You review and sign it with us. We confirm the funding details by email.'), h('li', {}, 'Your investment is effective once the contract is countersigned and funds are received.')] : kind === 'no' ? [h('li', {}, 'We will remove you from our list of potential investors.')] : [h('li', {}, 'Someone from Tolpods will be in touch.'), h('li', {}, 'You can change your selection at any time before we send a contract.')]),
+    h('div', { class: 'actions', style: 'justify-content:center;flex-wrap:wrap;margin-top:18px' }, h('button', { class: 'btn gold', onclick: () => go('deck/boarding') }, 'Change my selection'), h('button', { class: 'btn ghost', onclick: () => go('deck') }, '← Back to the presentation'), me.nda ? dl(me.nda.id, me.nda.pdf) : null),
+    h('p', { class: 'fine' }, 'Questions? Use Help at the top, or ', h('button', { class: 'link', onclick: () => go('deck/questions') }, 'schedule a call'), '.'))), { step: 'invest' });
+  window.scrollTo({ top: 0 });
 }
 
 /* ---------------- step 4: invest (SAFE) ---------------- */
@@ -258,8 +274,8 @@ function render() {
   if ((v === 'deck' || v === 'invest') && !signed) v = ready ? 'nda' : 'details';
   if (v === 'nda' && !ready) v = 'details';
   if (!['details', 'nda', 'deck', 'invest'].includes(v)) v = 'details';
-  if (v === 'invest') { v = 'deck'; return void (location.hash = '#deck/boarding'); }
-  if (v === 'details') detailsView(); else if (v === 'nda') ndaView(); else deckView(anchor);
+  if (v === 'invest' && !me.choice && !me.safe) return void (location.hash = '#deck/boarding');
+  if (v === 'details') detailsView(); else if (v === 'nda') ndaView(); else if (v === 'invest') portalView(); else deckView(anchor);
   if (v !== 'deck') { deckCtl?.destroy(); deckCtl = null; if (view) window.scrollTo({ top: 0 }); }
   document.title = 'Tolpods Investors';
 }

@@ -135,14 +135,17 @@ function slidesFor({ me, settings, productHref, onHelp, onTrack, ...opts }) {
   const acid = [{ name: 'Aeronautical (landing, gate fees)', value: 55.8, color: '#3a4a3f' }, { name: 'Non-aeronautical (retail, services, property)', value: 39.9, color: COL.gold }, { name: 'Non-operating', value: 4.3, color: COL.stone }];
   add({ id: 'airport-money', ch: 'market', th: 'night', title: 'Airports want this too', src: ['aci40', 'aci', 'model'], html: `
     ${tag('Airports are large economic hubs', 'gold')}<h2>Airports are looking for <span class="serif">new revenue</span></h2>
-    <div class="split">
-      <div class="dn-wrap" data-b="1">${donut({ data: acid, size: 280, thick: 40, center: '39.9%', sub: 'non-flight income', fmt: v => v + '%' })}</div>
-      <div class="ap-side">
-        ${donutLegend(acid, 100, v => v + '%', false)}
-        <div class="fact" data-b="2"><b>$7.08</b><span>non-aeronautical revenue per passenger, worldwide (ACI, FY2017, latest figure we could verify).</span></div>
+    <div class="panel xl dk ap-box" data-b="1">
+      <div class="ap-grid">
+        <div class="dn-wrap">${donut({ data: acid, size: 300, thick: 42, center: '39.9%', sub: 'non-flight income', fmt: v => v + '%' })}</div>
+        <div class="ap-side">
+          <h4>Where airport revenue comes from</h4>
+          ${donutLegend(acid, 100, v => v + '%', false)}
+          <div class="ap-stat"><b>$7.08</b><div><strong>per passenger</strong><span>Non-aeronautical revenue, worldwide (ACI, FY2017, latest figure we could verify)</span></div></div>
+        </div>
       </div>
-    </div>
-    <p class="fine light" data-b="3">ACI World forecasts about 9.8B airport passengers in 2025. Airports count every arrival and departure, which is why that is roughly double the airline figure.</p>` });
+      <p class="ap-note">ACI World forecasts about 9.8B airport passengers in 2025. Airports count every arrival and departure, which is why that is roughly double the airline figure.</p>
+    </div>` });
 
   /* ---- Product */
   add({ id: 'product', ch: 'product', th: 'night', title: 'The product', src: ['model'], html: `
@@ -265,7 +268,7 @@ function slidesFor({ me, settings, productHref, onHelp, onTrack, ...opts }) {
     ${tag('Try it yourself')}<h2>What would <span class="serif">your investment</span> be worth?</h2>
     <div class="sim light xl" data-b="1">
       <div class="sim-ctl"><label for="stk">Pick an investment</label><select id="stk" class="inp">${flat.map((f, i) => `<option value="${i}">${money(f.amt)} for ${f.pct}%</option>`).join('')}</select></div>
-      <div class="sim-grid"><div class="sim-k"><i>You invest</i><b id="k-in"></b></div><div class="sim-k"><i>Your investment buys</i><b id="k-pct"></b></div><div class="sim-k hl"><i>Value at Phase III</i><b id="k-p3"></b></div><div class="sim-k"><i>Value at IPO phase</i><b id="k-p5"></b></div></div>
+      <div class="sim-grid"><div class="sim-k"><i>You invest</i><b id="k-in"></b></div><div class="sim-k"><i>Your investment buys</i><b id="k-pct"></b></div><div class="sim-k key"><i>Value at Phase III</i><b id="k-p3"></b></div><div class="sim-k"><i>Value at IPO phase</i><b id="k-p5"></b></div></div>
       <div id="stk-chart"></div>
     </div>
     <p class="fine fine-xl" data-b="2">Value = your % × modeled company value (${ROI.mult[0]}×–${ROI.mult[5]}× revenue). Before dilution from later rounds and before the SAFE converts, so actual outcomes will differ. Illustrative, not a forecast or guarantee.</p>`,
@@ -285,11 +288,14 @@ function slidesFor({ me, settings, productHref, onHelp, onTrack, ...opts }) {
   const capHead = ['Capital requirement', ...PH.map((p, i) => `${p}<br><small class="mo">Month ${D.capMonths[i]}</small>`)];
   const capTbl = stbl(capHead, [...cap.map(c => ({ c: [c[0] + stars(c[3]), ...c[1].map(money)] })), { cls: 'sum', c: ['Total capital requirement', ...C['Total Capital'].map(x => nb(money(x)))] }, { c: ['Projected gross profits', ...C['Projected Gross'].map(money)] }, { cls: 'sum', c: ['Net capital requirement', ...C['Net Capital'].map(money)] }, { cls: 'good divs', c: ['Potential dividends', ...C['Potential'].map(x => nb(money(x)))] }]);
   const capPies = [0, 3, 5].map(i => `<div class="cp"><b>${PH[i]}</b>${donut({ data: cap.map(c => ({ name: c[0], value: c[1][i], color: c[2] })), size: 190, thick: 30, center: compact(C['Total Capital'][i]), sub: 'total', fmt: compact })}</div>`).join('');
-  add({ id: 'capital', ch: 'capital', th: 'paper', title: 'Investment Dollars Needed', html: `
+  add({ id: 'capital', ch: 'capital', th: 'paper', cls: 'wide', title: 'Investment Dollars Needed', html: `
     ${tag('Capital requirements')}<h2>Investment <span class="serif">Dollars Needed</span></h2>
-    <div class="panel xl" data-b="1"><h4>Capital requirement projections</h4>${capTbl}</div>
-    <div class="panel xl" data-b="2"><h4>What each phase pays for</h4>${legend(cap.map(c => ({ name: c[0], color: c[2] })))}<div class="cp-wrap"><div class="cps">${capPies}</div>
-      <ol class="stnotes">${cap.slice().sort((a, b) => a[3] - b[3]).map(c => `<li>${stars(c[3])}<span><b>${esc(c[0])}</b> ${esc(capNote[c[3] === 7 ? 6 : c[3] - 1].replace(/^[^:]+: /, ''))}</span></li>`).join('')}</ol></div></div>
+    <div class="cap-grid" data-b="1">
+      <div class="panel xl"><h4>Capital requirement projections</h4>${capTbl}</div>
+      <aside class="panel xl stn"><h4>What the stars mean</h4>
+        <ol class="stnotes">${cap.slice().sort((a, b) => a[3] - b[3]).map(c => { const t = capNote[c[3] === 7 ? 6 : c[3] - 1].replace(/^[^:]+: /, ''); return `<li>${stars(c[3])}<span><b>${esc(c[0])}</b>${esc(t.charAt(0).toUpperCase() + t.slice(1))}</span></li>`; }).join('')}</ol></aside>
+    </div>
+    <div class="panel xl" data-b="2"><h4>What each phase pays for</h4>${legend(cap.map(c => ({ name: c[0], color: c[2] })))}<div class="cps">${capPies}</div></div>
     <p class="fine fine-xl" data-b="3">The largest line is the Tolpods themselves: the first cluster at $50,000 per Tolpods, 10% cheaper with every new phase as orders grow. Inventory averages $2,000 per Tolpods.</p>` });
 
   /* ---- Funding: flywheel + sources */
@@ -348,9 +354,10 @@ function slidesFor({ me, settings, productHref, onHelp, onTrack, ...opts }) {
     init(el) {
       const box = $('#choose', el), conf = $('#ch-confirm', el), done = $('#ch-done', el);
       const showDone = ch => { conf.hidden = true; $$('.ch', box).forEach(b => b.classList.toggle('on', b.dataset.k === ch.key)); done.hidden = false;
-        done.innerHTML = `<div class="ch-msg"><b>${esc(ch.kind === 'opt' ? `${ch.label}: ${money(ch.amount)} for ${ch.pct}%` : ch.label)}</b><p>${esc(MSG[ch.kind])}</p><button type="button" class="link" data-change>Change my selection</button></div>`; };
+        done.innerHTML = `<div class="ch-msg"><b>${esc(ch.kind === 'opt' ? `${ch.label}: ${money(ch.amount)} for ${ch.pct}%` : ch.label)}</b><p>${esc(MSG[ch.kind])}</p><div class="ch-links"><button type="button" class="btn gold" data-portal>Go to my investor portal →</button><button type="button" class="link" data-change>Change my selection</button></div></div>`; };
       if (me.choice) showDone(CH.find(c => c.key === me.choice.key) || CH[0]);
       box.addEventListener('click', async e => {
+        if (e.target.closest('[data-portal]')) { opts.onPortal?.(); return; }
         if (e.target.closest('[data-change]')) { done.hidden = true; $$('.ch', box).forEach(b => b.classList.remove('on')); return; }
         const b = e.target.closest('.ch'); if (b) { const ch = CH.find(c => c.key === b.dataset.k); $$('.ch', box).forEach(x => x.classList.toggle('on', x === b)); done.hidden = true;
           const fb = ch.kind !== 'opt'; conf.hidden = false;
@@ -360,7 +367,7 @@ function slidesFor({ me, settings, productHref, onHelp, onTrack, ...opts }) {
           conf.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
         const cb = e.target.closest('[data-confirm]'); if (cb) { const ch = CH.find(c => c.key === cb.dataset.confirm); cb.disabled = true; const fb = $('#ch-fb', el).value.trim();
           const r = await opts.onChoose({ key: ch.key, kind: ch.kind, label: ch.label, amount: ch.amount || 0, pct: ch.pct || 0, feedback: fb }); cb.disabled = false;
-          if (!r.ok) { $('#ch-err', el).textContent = r.error || 'Could not save. Try again.'; return; } me.choice = r.choice; showDone(ch); } });
+          if (!r.ok) { $('#ch-err', el).textContent = r.error || 'Could not save. Try again.'; return; } me.choice = r.choice; showDone(ch); setTimeout(() => opts.onPortal?.(), 2600); } });
     } });
   return [...out.filter(x => !x.app), ...out.filter(x => x.app)];
 }
