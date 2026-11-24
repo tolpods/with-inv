@@ -14,7 +14,8 @@ const { renderer, scene, sun, hemi } = createStage(canvas);
 renderer.setPixelRatio(1);
 const pod = buildPod(); scene.add(pod.root);
 addGround(scene, pod.M.ground).visible = false;
-const camera = new THREE.PerspectiveCamera(44, 16 / 9, 1, 20000);
+const QP = new URLSearchParams(location.search);
+const camera = new THREE.PerspectiveCamera(44, 16 / 9, +(QP.get('near') || 1), +(QP.get('far') || 20000));
 const W = (x, y, z) => planToWorld(x, y, z);
 const center = W(45, 72, 25);
 
@@ -35,7 +36,9 @@ sun.position.set(70, 430, -90); sun.intensity = 1.7; sun.color.set(0xfff0dc); he
 const fx = new URLSearchParams(location.search).has('nofx') ? null : createFx(renderer, scene, camera);
 
 // ---------------------------------------------------------------- timeline (guided tour film, ~3.5 min)
-const R = pod.api.rigs, SC = 1.28, INTRO = 4, OUTRO = 6;
+const VT = await fetch('./voice/timing.json').then((r) => r.json()).catch(() => ({}));
+const R = pod.api.rigs, SC = 1.25; let INTRO = Math.max(4, (VT.intro || 0) + 1.6), OUTRO = 6;
+const voice = []; if (VT.intro) voice.push({ key: 'intro', start: 0.8 });
 const ease = (x) => x * x * (3 - 2 * x);
 const key = (ks, t) => { if (t <= ks[0][0]) return ks[0][1]; for (let i = 1; i < ks.length; i++) if (t <= ks[i][0]) { const [a, va] = ks[i - 1], [b, vb] = ks[i]; return va + (vb - va) * (t - a) / (b - a); } return ks.at(-1)[1]; };
 const fade = (t, a, b, f = 0.5) => Math.max(0, Math.min(1, Math.min((t - a) / f, (b - t) / f)));
@@ -45,7 +48,7 @@ const segs = []; let T = INTRO; const first = { outside: TOURS.outside[0], insid
 for (const part of ['outside', 'inside']) {
   let prev = null; const partStart = T;
   TOURS[part].forEach((s, i) => {
-    const mv = s.move * SC, dw = s.dwell * SC;
+    const vk = part + i, mv = s.move * SC, dw = Math.max(s.dwell * SC, VT[vk] ? 0.5 + VT[vk] + 0.8 - mv : 0); if (VT[vk]) voice.push({ key: vk, start: +(T + 0.5).toFixed(2) });
     const from = prev || { pos: [s.pos[0] + (part === 'outside' ? 60 : 0), s.pos[1] + (part === 'outside' ? 40 : 20), s.pos[2] + 20], look: s.look };
     segs.push({ part, i, t0: T, tm: T + mv, t1: T + mv + dw, from, to: s, title: s.title, text: s.text, first: i === 0, partStart });
     T += mv + dw; prev = s;
@@ -53,18 +56,17 @@ for (const part of ['outside', 'inside']) {
   T += 0.8; // gap for the dip between parts
   segs.at(-1).end = true;
 }
-const DUR = T + OUTRO; const OUT0 = T;
+const OUT0 = T; if (VT.outro) { OUTRO = Math.max(6, VT.outro + 2.6); voice.push({ key: 'outro', start: +(OUT0 + 0.8).toFixed(2) }); }
+const DUR = T + OUTRO; window.VOICE = voice;
 const INSIDE0 = segs.find((s) => s.part === 'inside').t0;
 const byTitle = (t) => segs.find((s) => s.title === t);
-const sMass = byTitle('The massage chair (1)'), sPrem = byTitle('Premium storage'), sStep = byTitle('Stepping in');
+const sMass = byTitle('The massage chair'), sPrem = byTitle('Premium storage'), sTv = byTitle('The TV');
 // rig keyframes (absolute seconds)
 const K = {
   chair: [[0, 0.45], [sMass.tm, 0.45], [sMass.tm + 4, 1], [sMass.t1 - 1.2, 1], [sMass.t1, 0.45]],
   legext: [[0, 0], [sMass.tm + 2, 0], [sMass.tm + 3.4, 1], [sMass.t1 - 1.2, 1], [sMass.t1, 0]],
-  glass1: [[0, 0], [sStep.tm + 1, 0], [sStep.t1 - 0.5, 1], [sStep.t1 + 4, 1], [sStep.t1 + 5, 0]],
-  glass2: [[0, 0], [sStep.tm + 0.6, 0], [sStep.t1 - 0.9, 1], [sStep.t1 + 3.6, 1], [sStep.t1 + 4.6, 0]],
   premium: [[0, 0], [sPrem.tm + 0.5, 0], [sPrem.tm + 2.2, 1], [sPrem.t1, 1], [sPrem.t1 + 1, 0]],
-  tv: [[0, 0], [INSIDE0 - 1, 0], [INSIDE0 + 4, 0]],
+  tv: [[0, 0], [sTv.tm - 0.2, 0], [sTv.tm + 2.2, 1], [sTv.t1 + 0.2, 1], [sTv.t1 + 2.4, 0]],
 };
 window.DUR = DUR;
 window.__segs = segs.map((s) => [s.part, s.title, +s.t0.toFixed(1), +s.t1.toFixed(1)]);

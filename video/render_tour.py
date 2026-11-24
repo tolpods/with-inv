@@ -8,14 +8,14 @@ out = sys.argv[4] if len(sys.argv) > 4 else '/tmp/claude-0/tour_frames'
 only = [float(x) for x in sys.argv[5].split(',')] if len(sys.argv) > 5 else None      # optional: list of times for a still test
 os.makedirs(out, exist_ok=True)
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-srv = subprocess.Popen(['python3', '-m', 'http.server', '8777', '-d', root], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
+srv = subprocess.Popen(['python3', '-m', 'http.server', os.environ.get('PORT','8777'), '-d', root], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
 try:
     with sync_playwright() as p:
         b = p.chromium.launch(args=['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'])
         pg = b.new_page(viewport={'width': w, 'height': h}); pg.set_default_timeout(600000)
         errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
-        pg.goto('http://localhost:8777/video/tour.html' + ('?nofx' if os.environ.get('NOFX') else '')); pg.wait_for_function("document.title==='ready'")
-        dur = pg.evaluate('window.DUR')
+        pg.goto('http://localhost:' + os.environ.get('PORT','8777') + '/video/tour.html?' + os.environ.get('QS', '')); pg.wait_for_function("document.title==='ready'")
+        dur = pg.evaluate('window.DUR'); import json; json.dump({'dur': dur, 'voice': pg.evaluate('window.VOICE')}, open(os.path.join(root, 'video', 'voice', 'schedule.json'), 'w'))
         times = only if only else [i / fps for i in range(int(dur * fps) + 1)]
         t0 = time.time()
         part, nparts = (int(x) for x in os.environ.get('PART', '0/1').split('/'))
